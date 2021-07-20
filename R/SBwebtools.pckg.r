@@ -4461,7 +4461,7 @@ addDGEcomparisons2DesignFile <- function(
     }
 
     dfDesign <- dfDesign[order(
-        dfDesign$dataseries,
+        #dfDesign$dataseries,
         dfDesign$sample.group,
         dfDesign$sample.id),
         ]
