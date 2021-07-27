@@ -11998,7 +11998,7 @@ inferDBcategories <- function(
         }
 
         pos <- grep(classLabel, names(dbCatList), fixed=TRUE)
-        if (length(pos) == 1){
+        if (length(pos) > 0 ){
             dbCatList[[classLabel]] <- c(dbCatList[[classLabel]], paste0("^", names(dfData)[i], "$"))
         } else {
             dbCatList[[classLabel]] <- paste0("^", names(dfData)[i], "$")
@@ -12011,7 +12011,7 @@ inferDBcategories <- function(
     ## Make sure row_names is prsent ##
     classLabel <- "BIGINT(8) NULL DEFAULT NULL"
     pos <- grep(classLabel, names(dbCatList), fixed=TRUE)
-    if (length(pos) == 1){
+    if (length(pos) > 0){
         dbCatList[[classLabel]] <- c(dbCatList[[classLabel]], paste0("^row_names$"))
     } else {
         dbCatList[[classLabel]] <- paste0("^row_names$")
