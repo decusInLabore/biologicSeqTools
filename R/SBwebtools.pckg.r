@@ -11951,3 +11951,74 @@ excel <- function(df) {
 ## cars %>% excel()
 
 ##
+
+#' @title A function
+#'
+#' @description Method description
+#' @param agree TBD
+#' @keywords TBD
+#' @export
+#'
+###############################################################################
+## Function inferDBcategories                                                ##
+
+inferDBcategories <- function(
+    dfData
+){
+    dbCatList <- list()
+
+    for (i in 1:length(dfData)){
+        classLabel <- ""
+        maxStringLength <- max(nchar(dfData[,i])) + 2
+
+        if (is.numeric(dfData[,i])){
+            if (is.integer(dfData[,i])){
+                if (maxStringLength <= 8) {
+                    classLabel <- "INT(8) NULL DEFAULT NULL"
+                } else {
+                    classLabel <- "BIGINT(8) NULL DEFAULT NULL"
+                }
+            } else {
+                if (max(dfData[,i]) <= 1){
+                    classLabel <- "DECIMAL(6,5) NULL DEFAULT NULL"
+                } else {
+                    classLabel <- "DECIMAL(6,3) NULL DEFAULT NULL"
+                }
+            }
+        } else {
+            ## Running as character
+            classLabel <- "VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci"
+            if (maxStringLength < 100){
+                classLabel <- "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci"
+            } else if (maxStringLength < 50){
+                classLabel <- "VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci"
+            } else if (maxStringLength < 10){
+                classLabel <- "VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci"
+            }
+        }
+
+        pos <- grep(classLabel, names(dbCatList), fixed=TRUE)
+        if (length(pos) == 1){
+            dbCatList[[classLabel]] <- c(dbCatList[[classLabel]], paste0("^", names(dfData)[i], "$"))
+        } else {
+            dbCatList[[classLabel]] <- paste0("^", names(dfData)[i], "$")
+        }
+
+    }
+
+
+
+    ## Make sure row_names is prsent ##
+    classLabel <- "BIGINT(8) NULL DEFAULT NULL"
+    pos <- grep(classLabel, names(dbCatList), fixed=TRUE)
+    if (length(pos) == 1){
+        dbCatList[[classLabel]] <- c(dbCatList[[classLabel]], paste0("^row_names$"))
+    } else {
+        dbCatList[[classLabel]] <- paste0("^row_names$")
+    }
+
+    return(dbCatList)
+}
+
+## EOF inferDB category                                                      ##
+###############################################################################
