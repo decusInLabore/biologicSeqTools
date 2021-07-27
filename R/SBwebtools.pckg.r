@@ -11969,7 +11969,7 @@ inferDBcategories <- function(
 
     for (i in 1:length(dfData)){
         classLabel <- ""
-        maxStringLength <- max(nchar(dfData[,i])) + 2
+        maxStringLength <- max(nchar(as.character(dfData[,i]))) + 2
 
         if (is.numeric(dfData[,i])){
             if (is.integer(dfData[,i])){
