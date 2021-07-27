@@ -12148,6 +12148,15 @@ setGeneric(
 
 ###############################################################################
 ## Add to Seurat metadata                                                    ##
+
+#' Scan Parameters
+#'
+#' TBD.
+#'
+#' @param obj Seurat object
+#' @return paramerer list
+#' @export
+
 setGeneric(
     name="addDf2seuratMetaData",
     def=function(obj, dfAdd) {
@@ -12174,6 +12183,13 @@ setGeneric(
 ###############################################################################
 
 ###############################################################################
+#' Scan Parameters
+#'
+#' TBD.
+#'
+#' @param obj Seurat object
+#' @return paramerer list
+#' @export
 
 setGeneric(
     name="createDfCoord",
@@ -12214,6 +12230,14 @@ setGeneric(
 ###############################################################################
 
 ###############################################################################
+#' Scan Parameters
+#'
+#' TBD.
+#'
+#' @param obj Seurat object
+#' @return paramerer list
+#' @export
+
 
 setGeneric(
     name="createDfExpr",
