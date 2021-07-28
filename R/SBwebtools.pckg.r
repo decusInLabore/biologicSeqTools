@@ -11969,7 +11969,7 @@ inferDBcategories <- function(
 
     for (i in 1:length(dfData)){
         classLabel <- ""
-        maxStringLength <- max(nchar(as.character(dfData[,i]))) + 2
+        maxStringLength <- max(nchar(as.character(dfData[,i])), na.rm = T) + 2
 
         if (is.numeric(dfData[,i])){
             if (is.integer(dfData[,i])){
@@ -11979,7 +11979,7 @@ inferDBcategories <- function(
                     classLabel <- "BIGINT(8) NULL DEFAULT NULL"
                 }
             } else {
-                if (max(dfData[,i]) <= 1){
+                if (max(dfData[,i], na.rm = T) <= 1){
                     classLabel <- "DECIMAL(6,5) NULL DEFAULT NULL"
                 } else {
                     classLabel <- "DECIMAL(6,3) NULL DEFAULT NULL"
