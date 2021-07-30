@@ -8,6 +8,8 @@ Authors@R:
            email = "stefan.boeing@yahoo.com",
            comment = c(ORCID = "0000-0003-0495-5659"))
 Description: Contains analysis functions for sequencing data.
+Imports:
+    DESeq2
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
