@@ -17,3 +17,4 @@ createRNAseqQCscript(
 Method description
 }
 \keyword{TBD}
+\keyword{n=n-1',}

@@ -32,3 +32,4 @@ create.rnaseqc.script(
 Method description
 }
 \keyword{TBD}
+\keyword{n=n-1',}

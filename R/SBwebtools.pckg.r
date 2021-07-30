@@ -4,8 +4,8 @@
 #' @param agree Do you agree dogs are the best pet? Defaults to TRUE.
 #' @keywords dogs
 #' @export
-#' @examples
 #' @import DESeq2
+#' @import methods
 
 
 #library("methods")
@@ -882,7 +882,6 @@ setGeneric(
 #' @description Method description
 #' @param agree TBD
 #' @keywords TBD
-#' @export
 #'
 #'
 setGeneric(
@@ -5288,7 +5287,6 @@ setGeneric(
 #' @description Method description
 #' @param agree TBD
 #' @keywords TBD
-#' @export
 #'
 #'
 create.rnaseqc.script <- function(
