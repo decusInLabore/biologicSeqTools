@@ -8,7 +8,7 @@
 
 
 #library("methods")
-#library(DESeq2)
+library(DESeq2)
 
 setClass(
     "bioLOGIC",
