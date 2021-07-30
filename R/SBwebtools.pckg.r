@@ -8,8 +8,8 @@
 #' @import methods
 
 
-#library("methods")
-#library(DESeq2)
+library("methods")
+library(DESeq2)
 
 setClass(
     "bioLOGIC",
