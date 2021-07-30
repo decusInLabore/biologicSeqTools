@@ -5,10 +5,11 @@
 #' @keywords dogs
 #' @export
 #' @examples
+#' @import DESeq2
 
 
 #library("methods")
-library(DESeq2)
+#library(DESeq2)
 
 setClass(
     "bioLOGIC",
