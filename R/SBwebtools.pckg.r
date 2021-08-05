@@ -1393,6 +1393,7 @@ setGeneric(
 #' @description Method description
 #' @param agree TBD
 #' @keywords TBD
+#' @import DESeq2
 #' @export
 #'
 #'
@@ -12291,10 +12292,11 @@ setGeneric(
 ###############################################################################
 #' Scan Parameters
 #'
-#' TBD.
+#' @title createDfCoord
 #'
 #' @param obj Seurat object
 #' @return paramerer list
+#' @import Seurat
 #' @export
 
 setGeneric(
@@ -12339,9 +12341,10 @@ setGeneric(
 #' Scan Parameters
 #'
 #' TBD.
-#'
+#' @title createDfExpr
 #' @param obj Seurat object
 #' @return paramerer list
+#' @import Seurat
 #' @export
 
 

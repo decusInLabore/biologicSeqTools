@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{createDfExpr}
 \alias{createDfExpr}
-\title{Scan Parameters}
+\title{createDfExpr}
 \usage{
 createDfExpr(obj, assay = "RNA", geneSel = NULL)
 }
@@ -13,5 +13,8 @@ createDfExpr(obj, assay = "RNA", geneSel = NULL)
 paramerer list
 }
 \description{
+Scan Parameters
+}
+\details{
 TBD.
 }
