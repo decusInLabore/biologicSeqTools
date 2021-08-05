@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{addDf2seuratMetaData}
 \alias{addDf2seuratMetaData}
-\title{Scan Parameters}
+\title{addDf2seuratMetaData}
 \usage{
 addDf2seuratMetaData(obj, dfAdd)
 }
@@ -13,5 +13,5 @@ addDf2seuratMetaData(obj, dfAdd)
 paramerer list
 }
 \description{
-TBD.
+addDf2seuratMetaData
 }

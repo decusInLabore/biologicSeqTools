@@ -12256,12 +12256,12 @@ setGeneric(
 ###############################################################################
 ## Add to Seurat metadata                                                    ##
 
-#' Scan Parameters
+#' @title addDf2seuratMetaData
 #'
-#' TBD.
 #'
 #' @param obj Seurat object
 #' @return paramerer list
+#' @import Seurat
 #' @export
 
 setGeneric(
@@ -12306,7 +12306,7 @@ setGeneric(
         params = NULL
     ) {
         if (is.null(params)){
-            params <- scanObjParams(obj)
+            params <- biologicSeqTools::scanObjParams(obj)
         }
 
         ## Add reductions ##
@@ -12315,7 +12315,7 @@ setGeneric(
         for (i in 1:length(reds)){
             dfAdd <- data.frame(obj@reductions[[reds[i]]]@cell.embeddings)
             if (nrow(dfAdd) > 0){
-                obj <- addDf2seuratMetaData(obj = obj, dfAdd = dfAdd)
+                obj <- biologicSeqTools::addDf2seuratMetaData(obj = obj, dfAdd = dfAdd)
             }
         }
 

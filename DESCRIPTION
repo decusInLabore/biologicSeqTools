@@ -12,7 +12,8 @@ Imports:
     DESeq2,
     methods,
     openxlsx,
-    Seurat
+    Seurat,
+    dplyr
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
