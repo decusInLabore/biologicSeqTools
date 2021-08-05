@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{upload.datatable.to.database}
 \alias{upload.datatable.to.database}
-\title{A method}
+\title{upload.datatable.to.database}
 \usage{
 upload.datatable.to.database(
   host = "www.biologic-db.org",
@@ -26,13 +26,41 @@ upload.datatable.to.database(
   new.table = FALSE,
   first.row.name.index = 1,
   startOnlyWithConnectionCount1 = FALSE,
-  cols2Index = NULL
+  cols2Index = NULL,
+  mode = "MySQL"
 )
 }
 \arguments{
-\item{agree}{TBD}
+\item{host}{URL or IP address of the database server. NULL if mode is SQLite}
+
+\item{user}{database user name. Needs privileges for INSERT, DELETE, DROP and SELECT}
+
+\item{password}{database password}
+
+\item{prim.data.db}{primary database name}
+
+\item{dbTableName}{Name of the database table to upload}
+
+\item{df.data}{data.frame to upload to the database}
+
+\item{db.col.parameter.list}{This list specifies the category for a database column. This ideally is filled using the function inferDbColumns(dbTableName)}
+
+\item{increment}{= 5000,}
+
+\item{new.table}{= FALSE,}
+
+\item{first.row.name.index}{= 1,}
+
+\item{startOnlyWithConnectionCount1}{= FALSE,}
+
+\item{cols2Index}{= NULL,}
+
+\item{mode}{= "MySQL"}
 }
 \description{
-Method description
+mode options: SQLite, MySQL
 }
-\keyword{TBD}
+\keyword{Database}
+\keyword{MySQL}
+\keyword{SQLite}
+\keyword{Upload}

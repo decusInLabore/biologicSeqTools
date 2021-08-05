@@ -1,4 +1,4 @@
-#' @title Define Biologic Class
+#' @title bioLOGIC
 #'
 #' @description This function allows you to express your love for the superior furry animal.
 #' @param agree Do you agree dogs are the best pet? Defaults to TRUE.
@@ -8,8 +8,8 @@
 #' @import methods
 
 
-library("methods")
-library(DESeq2)
+#library("methods")
+#library(DESeq2)
 
 setClass(
     "bioLOGIC",
@@ -6839,8 +6839,8 @@ datatable.to.website.ptm <- function (
 #' @description Method description
 #' @param agree TBD
 #' @keywords TBD
+#' @import openxlsx
 #' @export
-#'
 #'
 createAndFormatExcelOutputFiles <- function(
     obj,
@@ -6900,26 +6900,27 @@ createAndFormatExcelOutputFiles <- function(
     )
 
     ## Create Excel file ##
-    library(openxlsx)
+    #library(openxlsx)
 
-    wb <- createWorkbook()
-    addWorksheet(wb, paste0(obj@parameterList$project_id, "_full_DGE_result_list"))
-    freezePane(wb, paste0(obj@parameterList$project_id, "_full_DGE_result_list") ,  firstActiveRow = 2)
+    wb <- openxlsx::createWorkbook()
+    sheet <- substr(paste0(obj@parameterList$project_id, "_full_DGE_result_list"), 1, 30)
+    addWorksheet(wb, sheet)
+    freezePane(wb, sheet ,  firstActiveRow = 2)
 
     ## Filter is inactivated, as it does not appear to be compatible with the current version of Excel
     #addFilter(wb, 1, row = 1, cols = 1:ncol(dfOutput))
 
     ## Style headers ##
-    hs1 <- createStyle(
+    hs1 <- openxlsx::createStyle(
         fontColour = "#ffffff",
         fgFill = "#000000",
         halign = "CENTER",
         textDecoration = "Bold"
     )
 
-    writeData(wb, 1, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
+    openxlsx::writeData(wb, 1, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
 
-    saveWorkbook(
+    openxlsx::saveWorkbook(
         wb,
         gsub(".txt", ".xlsx", outPutFN) ,
         overwrite = TRUE
@@ -6961,11 +6962,13 @@ createAndFormatExcelOutputFiles <- function(
         sep="\t"
     )
 
-    wb <- createWorkbook()
-    addWorksheet(wb, paste0(obj@parameterList$project_id, "_metacore_input_file"))
+    wb <- openxlsx::createWorkbook()
+
+    sheet <- substr(paste0(obj@parameterList$project_id, "_metacore_input_file"), 1, 30)
+    openxlsx::addWorksheet(wb, sheet)
 
     ## Style headers ##
-    hs1 <- createStyle(
+    hs1 <- openxlsx::createStyle(
         fgFill = "#4F81BD",
         halign = "CENTER",
         textDecoration = "Bold",
@@ -6973,9 +6976,9 @@ createAndFormatExcelOutputFiles <- function(
         fontColour = "white"
     )
 
-    writeData(wb, 1, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
+    openxlsx::writeData(wb, 1, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
 
-    saveWorkbook(
+    openxlsx::saveWorkbook(
         wb,
         gsub(".txt", ".xlsx", outPutFN) ,
         overwrite = TRUE
@@ -7045,6 +7048,78 @@ killDbConnections <- function () {
     #print(paste(length(all_cons), " connections killed."))
 }
 ##                                                                           ##
+###############################################################################
+
+
+#' @title inferDBcategories
+#'
+#' @description Method description
+#' @param agree TBD
+#' @keywords TBD
+#' @export
+#'
+###############################################################################
+## Function inferDBcategories                                                ##
+
+inferDBcategories <- function(
+    dfData
+){
+    dbCatList <- list()
+
+    for (i in 1:length(dfData)){
+        classLabel <- ""
+        maxStringLength <- max(nchar(as.character(dfData[,i])), na.rm = T) + 2
+
+        if (is.numeric(dfData[,i])){
+            if (is.integer(dfData[,i])){
+                if (maxStringLength <= 8) {
+                    classLabel <- "INT(8) NULL DEFAULT NULL"
+                } else {
+                    classLabel <- "BIGINT(8) NULL DEFAULT NULL"
+                }
+            } else {
+                if (max(dfData[,i], na.rm = T) <= 1){
+                    classLabel <- "DECIMAL(6,5) NULL DEFAULT NULL"
+                } else {
+                    classLabel <- "DECIMAL(6,3) NULL DEFAULT NULL"
+                }
+            }
+        } else {
+            ## Running as character
+            classLabel <- "VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci"
+            if (maxStringLength < 100){
+                classLabel <- "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci"
+            } else if (maxStringLength < 50){
+                classLabel <- "VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci"
+            } else if (maxStringLength < 10){
+                classLabel <- "VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci"
+            }
+        }
+
+        pos <- grep(classLabel, names(dbCatList), fixed=TRUE)
+        if (length(pos) > 0 ){
+            dbCatList[[classLabel]] <- c(dbCatList[[classLabel]], paste0("^", names(dfData)[i], "$"))
+        } else {
+            dbCatList[[classLabel]] <- paste0("^", names(dfData)[i], "$")
+        }
+
+    }
+
+
+
+    ## Make sure row_names is prsent ##
+    classLabel <- "BIGINT(8) NULL DEFAULT NULL"
+    pos <- grep(classLabel, names(dbCatList), fixed=TRUE)
+    if (length(pos) > 0){
+        dbCatList[[classLabel]] <- c(dbCatList[[classLabel]], paste0("^row_names$"))
+    } else {
+        dbCatList[[classLabel]] <- paste0("^row_names$")
+    }
+
+    return(dbCatList)
+}
+
+## EOF inferDB category                                                      ##
 ###############################################################################
 
 ###############################################################################
@@ -7155,14 +7230,30 @@ upload.pca.table.to.db <- function(
 
 ## Indexing of gene name column
 # CREATE INDEX idx_mgi_symbol ON p268_rna_seq_table(mgi_symbol)
-#' @title A method
+#' @title upload.datatable.to.database
 #'
-#' @description Method description
-#' @param agree TBD
-#' @keywords TBD
+#' @param host URL or IP address of the database server. NULL if mode is SQLite
+#' @param user database user name. Needs privileges for INSERT, DELETE, DROP and SELECT
+#' @param password database password
+#' @param prim.data.db primary database name
+#' @param dbTableName Name of the database table to upload
+#' @param df.data data.frame to upload to the database
+#' @param db.col.parameter.list This list specifies the category for a database column. This ideally is filled using the function inferDbColumns(dbTableName)
+#' @param increment = 5000,
+#' @param new.table = FALSE,
+#' @param first.row.name.index = 1,
+#' @param startOnlyWithConnectionCount1 = FALSE,
+#' @param cols2Index = NULL,
+#' @param mode = "MySQL"
+#'
+#' @description mode options: SQLite, MySQL
+#' @keywords MySQL SQLite Upload Database
 #' @export
 #'
 #'
+
+# 2021-08-1 Added sqlite options #
+
 upload.datatable.to.database <- function(
     host = "www.biologic-db.org",
     user = "db.user",
@@ -7183,7 +7274,8 @@ upload.datatable.to.database <- function(
     new.table = FALSE,
     first.row.name.index = 1,
     startOnlyWithConnectionCount1 = FALSE,
-    cols2Index = NULL
+    cols2Index = NULL,
+    mode = "MySQL"
 ){
 
     if (sum( nchar(names(df.data)) > 64) > 0){
@@ -7200,22 +7292,35 @@ upload.datatable.to.database <- function(
             password = "password",
             dbname = "prim.data.db",
             host = "host"){
-            dbDB <- dbConnect(
-                drv = RMySQL::MySQL(),
-                user = user,
-                password = password,
-                #dbname = prim.data.db,
-                host = host
-            )
+
+            if (mode == "SQLite"){
+
+                dbDB <- DBI::dbConnect(
+                    drv = RSQLite::SQLite()
+                )
+
+            } else {
+
+                dbDB <- DBI::dbConnect(
+                    drv = RMySQL::MySQL(),
+                    user = user,
+                    password = password,
+                    host = host,
+
+                )
+
+            }
+
+
 
             connectionCount <- as.numeric(
-                dbGetQuery(
+                DBI::dbGetQuery(
                     dbDB,
                     "SELECT COUNT(1) ConnectionCount, user FROM information_schema.processlist WHERE user <> 'system user' AND user = 'boeingS' GROUP BY user;"
                 )$ConnectionCount
             )
 
-            dbDisconnect(dbDB)
+            DBI::dbDisconnect(dbDB)
 
             return(connectionCount)
         }
@@ -7246,18 +7351,32 @@ upload.datatable.to.database <- function(
     }
 
     ## Uploading of data frame to database. Happens only if all columns are defined ##
-    library(RMySQL)
+    # library(RMySQL)
     ## Connect to MySQL to check existence of database ##
-    dbDB <- dbConnect(
-        drv = RMySQL::MySQL(),
-        user = user,
-        password = password,
-        host = host,
-        new.table = TRUE
-    )
+    if (mode == "SQLite"){
+
+        dbDB <- DBI::dbConnect(
+            drv = RSQLite::SQLite(),
+            dbname=prim.data.db
+        )
+
+    } else {
+
+        dbDB <- DBI::dbConnect(
+            drv = RMySQL::MySQL(),
+            user = user,
+            password = password,
+            host = host,
+            dbname=prim.data.db,
+            new.table = TRUE
+        )
+
+    }
+
+
 
     ## Create the database if it does not exist already##
-    res <- dbGetQuery(
+    res <- DBI::dbGetQuery(
         dbDB,
         paste(
             "CREATE DATABASE IF NOT EXISTS ",
@@ -7266,7 +7385,7 @@ upload.datatable.to.database <- function(
         )
     )
 
-    dbDisconnect(dbDB)
+    RMySQL::dbDisconnect(dbDB)
 
     ## Ensure that df.data has a row_names column ##
     df.data[["row_names"]] <- first.row.name.index:(first.row.name.index+nrow(df.data)-1)
@@ -7311,18 +7430,32 @@ upload.datatable.to.database <- function(
     }
 
 
-    ## Connect to database for dbtable upload  ##
-    dbDB <- dbConnect(
-        drv = RMySQL::MySQL(),
-        user = user,
-        password = password,
-        dbname = prim.data.db,
-        host = host
-    )
+
+    ## Establish connection ##
+    if (mode == "SQLite"){
+
+        dbDB <- DBI::dbConnect(
+            drv = RSQLite::SQLite(),
+            dbname=prim.data.db
+        )
+
+    } else {
+
+        dbDB <- DBI::dbConnect(
+            drv = RMySQL::MySQL(),
+            user = user,
+            password = password,
+            host = host,
+            dbname=prim.data.db
+        )
+
+    }
+
+
 
     ## Remove all tables with the same name from db ##
     if (new.table){
-        res <- dbGetQuery(
+        res <- DBI::dbGetQuery(
             dbDB,
             paste(
                 "DROP TABLE IF EXISTS ",
@@ -7330,7 +7463,7 @@ upload.datatable.to.database <- function(
                 sep = ""
             )
         )
-        dbDisconnect(dbDB)
+        RMySQL::dbDisconnect(dbDB)
     }
 
     ## Upload up to increment rows in one go ##
@@ -7352,16 +7485,30 @@ upload.datatable.to.database <- function(
         while (!uploaded){
             tryCatch({
                 killDbConnections()
-                dbDB <- dbConnect(
-                    drv = RMySQL::MySQL(),
-                    user = user,
-                    password = password,
-                    dbname = prim.data.db,
-                    host = host
-                )
+
+                ## Establish connection ##
+                if (mode == "SQLite"){
+
+                    dbDB <- DBI::dbConnect(
+                        drv = RSQLite::SQLite(),
+                        dbname=prim.data.db
+                    )
+
+                } else {
+
+                    dbDB <- DBI::dbConnect(
+                        drv = RMySQL::MySQL(),
+                        user = user,
+                        password = password,
+                        host = host,
+                        dbname=prim.data.db
+                    )
+
+                }
+
 
                 ## Upload new dataframe to database ##
-                res <- dbWriteTable(
+                res <- DBI::dbWriteTable(
                     dbDB,
                     dbTableName,
                     df.temp,
@@ -7369,7 +7516,8 @@ upload.datatable.to.database <- function(
                     append = TRUE,
                     overwrite = FALSE
                 )
-                dbDisconnect(dbDB)
+
+                RMySQL::dbDisconnect(dbDB)
                 uploaded = TRUE
                 #dbDisconnect(dbDB)
             }, error=function(e){cat("Upload errror :",conditionMessage(e), "\n")})
@@ -7388,21 +7536,34 @@ upload.datatable.to.database <- function(
         dbname = "prim.data.db",
         host = "host"
     ){
-        dbDB <- dbConnect(
-            drv = RMySQL::MySQL(),
-            user = user,
-            password = password,
-            dbname = prim.data.db,
-            host = host
-        )
+        ## Establish connection ##
+        if (mode == "SQLite"){
+
+            dbDB <- DBI::dbConnect(
+                drv = RSQLite::SQLite(),
+                dbname=prim.data.db
+            )
+
+        } else {
+
+            dbDB <- DBI::dbConnect(
+                drv = RMySQL::MySQL(),
+                user = user,
+                password = password,
+                host = host,
+                dbname=prim.data.db
+            )
+
+        }
+
 
         tryCatch({
-            dbGetQuery(
+            DBI::dbGetQuery(
                 dbDB,
                 cmd.string
             )}, error=function(e) {paste0("Alter not executed. cmd.vector[", i, "]")})
 
-        dbDisconnect(dbDB)
+        RMySQL::dbDisconnect(dbDB)
 
 
     }
@@ -7512,16 +7673,31 @@ upload.datatable.to.database <- function(
             print("...indexing...")
             cmd.string <- paste0("CREATE INDEX idx_",cols2Index[i]," ON ",dbTableName," (",cols2Index[i],")")
 
-            dbDB <- dbConnect(
-                drv = RMySQL::MySQL(),
-                user = user,
-                password = password,
-                dbname = prim.data.db,
-                host = host
-            )
+
+            ## Establish connection ##
+            if (mode == "SQLite"){
+
+                dbDB <- DBI::dbConnect(
+                    drv = RSQLite::SQLite(),
+                    dbname=prim.data.db
+                )
+
+            } else {
+
+                dbDB <- DBI::dbConnect(
+                    drv = RMySQL::MySQL(),
+                    user = user,
+                    password = password,
+                    host = host,
+                    dbname=prim.data.db
+                )
+
+            }
+
+
 
             tryCatch({
-                dbGetQuery(
+                DBI::dbGetQuery(
                     dbDB,
                     cmd.string
                 )}, error=function(e) {stop(paste0("Database table not uploaded. Problem adding index ",cols2Index[i],"."))})
@@ -11951,76 +12127,7 @@ excel <- function(df) {
 
 ##
 
-#' @title A function
-#'
-#' @description Method description
-#' @param agree TBD
-#' @keywords TBD
-#' @export
-#'
-###############################################################################
-## Function inferDBcategories                                                ##
 
-inferDBcategories <- function(
-    dfData
-){
-    dbCatList <- list()
-
-    for (i in 1:length(dfData)){
-        classLabel <- ""
-        maxStringLength <- max(nchar(as.character(dfData[,i])), na.rm = T) + 2
-
-        if (is.numeric(dfData[,i])){
-            if (is.integer(dfData[,i])){
-                if (maxStringLength <= 8) {
-                    classLabel <- "INT(8) NULL DEFAULT NULL"
-                } else {
-                    classLabel <- "BIGINT(8) NULL DEFAULT NULL"
-                }
-            } else {
-                if (max(dfData[,i], na.rm = T) <= 1){
-                    classLabel <- "DECIMAL(6,5) NULL DEFAULT NULL"
-                } else {
-                    classLabel <- "DECIMAL(6,3) NULL DEFAULT NULL"
-                }
-            }
-        } else {
-            ## Running as character
-            classLabel <- "VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci"
-            if (maxStringLength < 100){
-                classLabel <- "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci"
-            } else if (maxStringLength < 50){
-                classLabel <- "VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci"
-            } else if (maxStringLength < 10){
-                classLabel <- "VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci"
-            }
-        }
-
-        pos <- grep(classLabel, names(dbCatList), fixed=TRUE)
-        if (length(pos) > 0 ){
-            dbCatList[[classLabel]] <- c(dbCatList[[classLabel]], paste0("^", names(dfData)[i], "$"))
-        } else {
-            dbCatList[[classLabel]] <- paste0("^", names(dfData)[i], "$")
-        }
-
-    }
-
-
-
-    ## Make sure row_names is prsent ##
-    classLabel <- "BIGINT(8) NULL DEFAULT NULL"
-    pos <- grep(classLabel, names(dbCatList), fixed=TRUE)
-    if (length(pos) > 0){
-        dbCatList[[classLabel]] <- c(dbCatList[[classLabel]], paste0("^row_names$"))
-    } else {
-        dbCatList[[classLabel]] <- paste0("^row_names$")
-    }
-
-    return(dbCatList)
-}
-
-## EOF inferDB category                                                      ##
-###############################################################################
 
 ###############################################################################
 ## Scan Seurat Parameters                                                    ##

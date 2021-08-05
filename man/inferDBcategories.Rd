@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{inferDBcategories}
 \alias{inferDBcategories}
-\title{A function}
+\title{inferDBcategories}
 \usage{
 inferDBcategories(dfData)
 }

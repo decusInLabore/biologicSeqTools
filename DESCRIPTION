@@ -10,7 +10,8 @@ Authors@R:
 Description: Contains analysis functions for sequencing data.
 Imports:
     DESeq2,
-    methods
+    methods,
+    openxlsx
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
