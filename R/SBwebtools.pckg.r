@@ -1,4 +1,4 @@
-#' @title Define Biologic Class
+#' @title bioLOGIC
 #'
 #' @description This function allows you to express your love for the superior furry animal.
 #' @param agree Do you agree dogs are the best pet? Defaults to TRUE.
@@ -8,8 +8,8 @@
 #' @import methods
 
 
-library("methods")
-library(DESeq2)
+#library("methods")
+#library(DESeq2)
 
 setClass(
     "bioLOGIC",
@@ -6839,8 +6839,8 @@ datatable.to.website.ptm <- function (
 #' @description Method description
 #' @param agree TBD
 #' @keywords TBD
+#' @import openxlsx
 #' @export
-#'
 #'
 createAndFormatExcelOutputFiles <- function(
     obj,
@@ -6900,9 +6900,9 @@ createAndFormatExcelOutputFiles <- function(
     )
 
     ## Create Excel file ##
-    library(openxlsx)
+    #library(openxlsx)
 
-    wb <- createWorkbook()
+    wb <- openxlsx::createWorkbook()
     sheet <- substr(paste0(obj@parameterList$project_id, "_full_DGE_result_list"), 1, 30)
     addWorksheet(wb, sheet)
     freezePane(wb, sheet ,  firstActiveRow = 2)
@@ -6911,16 +6911,16 @@ createAndFormatExcelOutputFiles <- function(
     #addFilter(wb, 1, row = 1, cols = 1:ncol(dfOutput))
 
     ## Style headers ##
-    hs1 <- createStyle(
+    hs1 <- openxlsx::createStyle(
         fontColour = "#ffffff",
         fgFill = "#000000",
         halign = "CENTER",
         textDecoration = "Bold"
     )
 
-    writeData(wb, 1, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
+    openxlsx::writeData(wb, 1, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
 
-    saveWorkbook(
+    openxlsx::saveWorkbook(
         wb,
         gsub(".txt", ".xlsx", outPutFN) ,
         overwrite = TRUE
@@ -6962,13 +6962,13 @@ createAndFormatExcelOutputFiles <- function(
         sep="\t"
     )
 
-    wb <- createWorkbook()
+    wb <- openxlsx::createWorkbook()
 
     sheet <- substr(paste0(obj@parameterList$project_id, "_metacore_input_file"), 1, 30)
-    addWorksheet(wb, sheet)
+    openxlsx::addWorksheet(wb, sheet)
 
     ## Style headers ##
-    hs1 <- createStyle(
+    hs1 <- openxlsx::createStyle(
         fgFill = "#4F81BD",
         halign = "CENTER",
         textDecoration = "Bold",
@@ -6976,9 +6976,9 @@ createAndFormatExcelOutputFiles <- function(
         fontColour = "white"
     )
 
-    writeData(wb, 1, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
+    openxlsx::writeData(wb, 1, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
 
-    saveWorkbook(
+    openxlsx::saveWorkbook(
         wb,
         gsub(".txt", ".xlsx", outPutFN) ,
         overwrite = TRUE
