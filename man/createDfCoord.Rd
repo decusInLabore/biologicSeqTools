@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{createDfCoord}
 \alias{createDfCoord}
-\title{Scan Parameters}
+\title{createDfCoord}
 \usage{
 createDfCoord(obj, params = NULL)
 }
@@ -13,5 +13,5 @@ createDfCoord(obj, params = NULL)
 paramerer list
 }
 \description{
-TBD.
+Scan Parameters
 }
