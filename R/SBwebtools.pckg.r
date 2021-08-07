@@ -7715,7 +7715,7 @@ upload.datatable.to.database <- function(
                     cmd.string
                 )}, error=function(e) {stop(paste0("Database table not uploaded. Problem adding index ",cols2Index[i],"."))})
 
-            dbDisconnect(dbDB)
+            DBI::dbDisconnect(dbDB)
 
             print(paste0("Datatable ", dbTableName, " successfully uploaded and column(s) ",paste(cols2Index, collapse = " ")," indexed."))
         }
