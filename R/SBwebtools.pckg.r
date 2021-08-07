@@ -7686,15 +7686,45 @@ upload.datatable.to.database <- function(
         for (i in 1:length(cols2Index)){
             print("...indexing...")
 
-            if (is.null(indexName)){
+
+            ## Get all existing indixes
+            if (mode == "SQLite"){
+
+                dbDB <- DBI::dbConnect(
+                    drv = RSQLite::SQLite(),
+                    dbname=prim.data.db
+                )
+
+                ## get all existing indeces
+                listCmd <- paste0(
+                    "SELECT name FROM sqlite_master WHERE type = 'index';"
+                )
+
+                indexVec <- as.vector(DBI::dbGetQuery(
+                    dbDB,
+                    listCmd
+                )[,1])
+
+            }
+
+            if (!is.null(indexName)){
                 if (!is.na(indexName[i])){
-                    indexName <- indexName[i]
+                    indexCmdName <- indexName[i]
                 } else {
-                    indexName <- paste0("idx_",cols2Index[i])
+                    indexCmdName <- paste0("idx_",cols2Index[i])
+                }
+            } else {
+                indexCmdName <- paste0("idx_",cols2Index[i])
+            }
+
+
+            if (mode == "SQLite"){
+                while (sum(indexCmdName %in% indexVec) > 0){
+                    indexCmdName <- paste0(indexCmdName, sample(9, 1))
                 }
             }
 
-            cmd.string <- paste0("CREATE ",indexName," ON ",dbTableName," (",cols2Index[i],")")
+            cmd.string <- paste0("CREATE INDEX ",indexCmdName," ON ",dbTableName," (",cols2Index[i],")")
 
 
             ## Establish connection ##
@@ -7704,6 +7734,16 @@ upload.datatable.to.database <- function(
                     drv = RSQLite::SQLite(),
                     dbname=prim.data.db
                 )
+
+                ## get all existing indeces
+                 listCmd <- paste0(
+                     "SELECT name FROM sqlite_master WHERE type = 'index';"
+                 )
+
+                 indexVec <- DBI::dbGetQuery(
+                     dbDB,
+                     listCmd
+                 )
 
             } else {
 
