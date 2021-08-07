@@ -7249,6 +7249,7 @@ upload.pca.table.to.db <- function(
 #'
 #' @description mode options: SQLite, MySQL
 #' @keywords MySQL SQLite Upload Database
+#' @import RMySQL RSQLite DBI
 #' @export
 #'
 #'
@@ -7256,9 +7257,9 @@ upload.pca.table.to.db <- function(
 # 2021-08-1 Added sqlite options #
 
 upload.datatable.to.database <- function(
-    host = "www.biologic-db.org",
-    user = "db.user",
-    password = "db.pwd",
+    host = NULL,
+    user = NULL,
+    password = NULL,
     prim.data.db = "project.database",
     dbTableName = "rnaseqdbTableName",
     df.data = "df.data.to.upload",
@@ -7356,10 +7357,19 @@ upload.datatable.to.database <- function(
     ## Connect to MySQL to check existence of database ##
     if (mode == "SQLite"){
 
+        prim.data.dbPath <- unlist(strsplit(prim.data.db, "/"))[1:(length(unlist(strsplit(prim.data.db, "/")))-1)]
+        prim.data.dbPath <- paste0(prim.data.dbPath, collapse = "/")
+
+        if (!dir.exists(prim.data.dbPath)){
+            dir.create(prim.data.dbPath, recursive = T)
+        }
+
         dbDB <- DBI::dbConnect(
             drv = RSQLite::SQLite(),
             dbname=prim.data.db
         )
+
+
 
     } else {
 
@@ -7372,19 +7382,21 @@ upload.datatable.to.database <- function(
             new.table = TRUE
         )
 
+        ## Create the database if it does not exist already##
+        res <- DBI::dbGetQuery(
+            dbDB,
+            paste(
+                "CREATE DATABASE IF NOT EXISTS ",
+                prim.data.db,
+                sep = ""
+            )
+        )
+
     }
 
 
 
-    ## Create the database if it does not exist already##
-    res <- DBI::dbGetQuery(
-        dbDB,
-        paste(
-            "CREATE DATABASE IF NOT EXISTS ",
-            prim.data.db,
-            sep = ""
-        )
-    )
+
 
     RMySQL::dbDisconnect(dbDB)
 
@@ -7456,7 +7468,7 @@ upload.datatable.to.database <- function(
 
     ## Remove all tables with the same name from db ##
     if (new.table){
-        res <- DBI::dbGetQuery(
+        res <- DBI::dbExecute(
             dbDB,
             paste(
                 "DROP TABLE IF EXISTS ",
@@ -7485,7 +7497,7 @@ upload.datatable.to.database <- function(
         uploaded = FALSE
         while (!uploaded){
             tryCatch({
-                killDbConnections()
+                biologicSeqTools::killDbConnections()
 
                 ## Establish connection ##
                 if (mode == "SQLite"){
@@ -7698,7 +7710,7 @@ upload.datatable.to.database <- function(
 
 
             tryCatch({
-                DBI::dbGetQuery(
+                DBI::dbExecute(
                     dbDB,
                     cmd.string
                 )}, error=function(e) {stop(paste0("Database table not uploaded. Problem adding index ",cols2Index[i],"."))})
