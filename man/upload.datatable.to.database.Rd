@@ -5,9 +5,9 @@
 \title{upload.datatable.to.database}
 \usage{
 upload.datatable.to.database(
-  host = "www.biologic-db.org",
-  user = "db.user",
-  password = "db.pwd",
+  host = NULL,
+  user = NULL,
+  password = NULL,
   prim.data.db = "project.database",
   dbTableName = "rnaseqdbTableName",
   df.data = "df.data.to.upload",

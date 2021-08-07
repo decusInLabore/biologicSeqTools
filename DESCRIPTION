@@ -12,6 +12,9 @@ Imports:
     DESeq2,
     methods,
     openxlsx,
+    DBI, 
+    RMySQL, 
+    RSQLite,
     Seurat,
     dplyr
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
