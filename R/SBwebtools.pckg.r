@@ -7571,7 +7571,7 @@ upload.datatable.to.database <- function(
 
 
         tryCatch({
-            DBI::dbGetQuery(
+            DBI::dbExecute(
                 dbDB,
                 cmd.string
             )}, error=function(e) {paste0("Alter not executed. cmd.vector[", i, "]")})
