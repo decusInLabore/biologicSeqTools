@@ -7486,6 +7486,8 @@ upload.datatable.to.database <- function(
         iter <- iter + 1
     }
 
+    totalRows <- nrow(df.data)
+
     for (i in 1:iter){
         if (nrow(df.data) > increment){
             limit <- increment
@@ -7537,7 +7539,7 @@ upload.datatable.to.database <- function(
             }, error=function(e){cat("Upload errror :",conditionMessage(e), "\n")})
         }
 
-        print(paste0(i * increment, " rows uploaded to database..."))
+        print(paste0(i * increment, " rows out of ",totalRows," uploaded to database..."))
         ## Connect to database for dbtable upload  ##
     }
 
