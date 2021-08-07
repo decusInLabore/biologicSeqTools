@@ -7277,6 +7277,7 @@ upload.datatable.to.database <- function(
     first.row.name.index = 1,
     startOnlyWithConnectionCount1 = FALSE,
     cols2Index = NULL,
+    indexName = NULL,
     mode = "MySQL"
 ){
 
@@ -7684,7 +7685,16 @@ upload.datatable.to.database <- function(
     if (length(cols2Index) > 0){
         for (i in 1:length(cols2Index)){
             print("...indexing...")
-            cmd.string <- paste0("CREATE INDEX idx_",cols2Index[i]," ON ",dbTableName," (",cols2Index[i],")")
+
+            if (is.null(indexName)){
+                if (!is.na(indexName[i])){
+                    indexName <- indexName[i]
+                } else {
+                    indexName <- paste0("idx_",cols2Index[i])
+                }
+            }
+
+            cmd.string <- paste0("CREATE ",indexName," ON ",dbTableName," (",cols2Index[i],")")
 
 
             ## Establish connection ##
