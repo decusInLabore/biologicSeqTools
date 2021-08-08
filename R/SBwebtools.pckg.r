@@ -7308,7 +7308,7 @@ upload.datatable.to.database <- function(
                     drv = RMySQL::MySQL(),
                     user = user,
                     password = password,
-                    host = host,
+                    host = host
 
                 )
 
