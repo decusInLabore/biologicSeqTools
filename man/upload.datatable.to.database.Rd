@@ -27,6 +27,7 @@ upload.datatable.to.database(
   first.row.name.index = 1,
   startOnlyWithConnectionCount1 = FALSE,
   cols2Index = NULL,
+  indexName = NULL,
   mode = "MySQL"
 )
 }

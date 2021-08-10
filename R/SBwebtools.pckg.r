@@ -7308,7 +7308,7 @@ upload.datatable.to.database <- function(
                     drv = RMySQL::MySQL(),
                     user = user,
                     password = password,
-                    host = host,
+                    host = host
 
                 )
 
@@ -12197,460 +12197,323 @@ excel <- function(df) {
 ###############################################################################
 ## Scan Seurat Parameters                                                    ##
 
-
-
-#' Scan Parameters
-#'
-#' TBD.
-#'
-#' @param obj Seurat object
-#' @return paramerer list
-#' @export
-
-setGeneric(
-    name="scanObjParams",
-    def=function(
-        obj
-    ) {
-
-        addReductions <- function(red = "pca", obj, paramList){
-            reds <- names(obj@reductions)
-            pos <- grep(red, reds)
-            if (length(pos) > 0){
-                dfTemp <- data.frame(obj@reductions[[red]]@cell.embeddings)
-                if (nrow(dfTemp) > 0){
-                    paramList[[red]] <- names(dfTemp)
-
-                }
-            }
-            return(paramList)
-        }
-
-        tempList <- list()
-
-        tempList[["meta.data"]] <- c(names(obj@meta.data))
-        names(tempList[["meta.data"]]) <- gsub("[.]", "_",gsub("meta.data", "", c(names(obj@meta.data))))
-        reds <- names(obj@reductions)
-
-        for (i in 1:length(reds)){
-            tempList <- addReductions(
-                red = reds[i],
-                obj = obj,
-                paramList = tempList
-            )
-        }
-
-        allOptions <- unlist(tempList, use.names = F)
-        allOptions <- allOptions[allOptions != "all"]
-        uPos <- allOptions[grep("UMAP", allOptions)]
-        tPos <- allOptions[grep("tSNE", allOptions)]
-        clustPos <- allOptions[grep("cluster", allOptions)]
-        rmPos <- c(uPos, tPos, clustPos)
-        restPos <- allOptions[!(allOptions %in% rmPos)]
-        allOptions <- unique(c(uPos, tPos, clustPos, restPos))
-        names(allOptions) <- gsub("[.]", "_", allOptions)
+## This function moved to the package biologicViewerSC
 
 
 
-        paramList <- list()
-        paramList[["x_axis"]] <- c("log10 Expr" = "lg10Expr", allOptions)
-        paramList[["y_axis"]] <- c("log10 Expr" = "lg10Expr", allOptions)
-
-        catOptions <- as.vector(NULL, mode = "character")
-        for (i in 1:ncol(obj@meta.data)){
-            if (length(unique(obj@meta.data[,i])) <= 20){
-                catOptions <- c(
-                    catOptions,
-                    names(obj@meta.data)[i]
-                )
-            }
-        }
-
-        names(catOptions) <- gsub("[.]", "_", catOptions)
-        #names(catOptions) <- gsub("orig_ident", "sampleID", names(catOptions))
-        names(catOptions) <- gsub("seurat_clusters", "Cluster", names(catOptions))
-        names(catOptions) <- gsub("all", "None", names(catOptions))
-
-
-        paramList[["splitPlotsBy"]] <- catOptions
-
-        names(catOptions) <- gsub("None", "Black", names(catOptions))
-        paramList[["colorPlotsBy"]] <- catOptions
-
-        ## Create color list ##
-        sampleColorList <- list()
-        for (i in 1:length(paramList[["colorPlotsBy"]])){
-            tag <- paramList[["colorPlotsBy"]][i]
-
-            sampleVec <- as.vector(sort(unique(obj@meta.data[,tag])))
-            sampleVec <- na.omit(sampleVec)
-            sampleVec <- sampleVec[sampleVec != ""]
-
-            if (length(sampleVec) == 1){
-                sampleColVec <- "black"
-            }  else if (length(sampleVec) == 2){
-                l1 <- length(obj@meta.data[obj@meta.data[,tag] == sampleVec[1],tag])
-                l2 <- length(obj@meta.data[obj@meta.data[,tag] == sampleVec[2],tag])
-                if (l1 > l2){
-                    sampleColVec <- c("black", "red")
-                } else {
-                    sampleColVec <- c("red", "black")
-                }
-
-            } else {
-                library(scales)
-                sampleColVec <- hue_pal()(length(sampleVec))
-
-            }
-
-            names(sampleColVec) <- sampleVec
-            sampleColorList[[names(paramList[["colorPlotsBy"]])[i]]] <-  sampleColVec
-        }
-        paramList[["sampleColorList"]] <- sampleColorList
-        ## Done creating color list
-
-        return(paramList)
-
-    }
-
-)
+# setGeneric(
+#     name="scanObjParams",
+#     def=function(
+#         obj
+#     ) {
+#
+#         addReductions <- function(red = "pca", obj, paramList){
+#             reds <- names(obj@reductions)
+#             pos <- grep(red, reds)
+#             if (length(pos) > 0){
+#                 dfTemp <- data.frame(obj@reductions[[red]]@cell.embeddings)
+#                 if (nrow(dfTemp) > 0){
+#                     paramList[[red]] <- names(dfTemp)
+#
+#                 }
+#             }
+#             return(paramList)
+#         }
+#
+#         tempList <- list()
+#
+#         tempList[["meta.data"]] <- c(names(obj@meta.data))
+#         names(tempList[["meta.data"]]) <- gsub("[.]", "_",gsub("meta.data", "", c(names(obj@meta.data))))
+#         reds <- names(obj@reductions)
+#
+#         for (i in 1:length(reds)){
+#             tempList <- addReductions(
+#                 red = reds[i],
+#                 obj = obj,
+#                 paramList = tempList
+#             )
+#         }
+#
+#         allOptions <- unlist(tempList, use.names = F)
+#         allOptions <- allOptions[allOptions != "all"]
+#         uPos <- allOptions[grep("UMAP", allOptions)]
+#         tPos <- allOptions[grep("tSNE", allOptions)]
+#         clustPos <- allOptions[grep("cluster", allOptions)]
+#         rmPos <- c(uPos, tPos, clustPos)
+#         restPos <- allOptions[!(allOptions %in% rmPos)]
+#         allOptions <- unique(c(uPos, tPos, clustPos, restPos))
+#         names(allOptions) <- gsub("[.]", "_", allOptions)
+#
+#
+#
+#         paramList <- list()
+#         paramList[["x_axis"]] <- c("log10 Expr" = "lg10Expr", allOptions)
+#         paramList[["y_axis"]] <- c("log10 Expr" = "lg10Expr", allOptions)
+#
+#         catOptions <- as.vector(NULL, mode = "character")
+#         for (i in 1:ncol(obj@meta.data)){
+#             if (length(unique(obj@meta.data[,i])) <= 20){
+#                 catOptions <- c(
+#                     catOptions,
+#                     names(obj@meta.data)[i]
+#                 )
+#             }
+#         }
+#
+#         names(catOptions) <- gsub("[.]", "_", catOptions)
+#         #names(catOptions) <- gsub("orig_ident", "sampleID", names(catOptions))
+#         names(catOptions) <- gsub("seurat_clusters", "Cluster", names(catOptions))
+#         names(catOptions) <- gsub("all", "None", names(catOptions))
+#
+#
+#         paramList[["splitPlotsBy"]] <- catOptions
+#
+#         names(catOptions) <- gsub("None", "Black", names(catOptions))
+#         paramList[["colorPlotsBy"]] <- catOptions
+#
+#         ## Create color list ##
+#         sampleColorList <- list()
+#         for (i in 1:length(paramList[["colorPlotsBy"]])){
+#             tag <- paramList[["colorPlotsBy"]][i]
+#
+#             sampleVec <- as.vector(sort(unique(obj@meta.data[,tag])))
+#             sampleVec <- na.omit(sampleVec)
+#             sampleVec <- sampleVec[sampleVec != ""]
+#
+#             if (length(sampleVec) == 1){
+#                 sampleColVec <- "black"
+#             }  else if (length(sampleVec) == 2){
+#                 l1 <- length(obj@meta.data[obj@meta.data[,tag] == sampleVec[1],tag])
+#                 l2 <- length(obj@meta.data[obj@meta.data[,tag] == sampleVec[2],tag])
+#                 if (l1 > l2){
+#                     sampleColVec <- c("black", "red")
+#                 } else {
+#                     sampleColVec <- c("red", "black")
+#                 }
+#
+#             } else {
+#                 library(scales)
+#                 sampleColVec <- hue_pal()(length(sampleVec))
+#
+#             }
+#
+#             names(sampleColVec) <- sampleVec
+#             sampleColorList[[names(paramList[["colorPlotsBy"]])[i]]] <-  sampleColVec
+#         }
+#         paramList[["sampleColorList"]] <- sampleColorList
+#         ## Done creating color list
+#
+#         return(paramList)
+#
+#     }
+#
+# )
 
 ###############################################################################
 
-###############################################################################
-## Add to Seurat metadata                                                    ##
-
-#' @title addDf2seuratMetaData
-#'
-#'
-#' @param obj Seurat object
-#' @return paramerer list
-#' @import Seurat
-#' @export
-
-setGeneric(
-    name="addDf2seuratMetaData",
-    def=function(obj, dfAdd) {
-        #print(paste0("Dims before addition: ", dim(obj@meta.data)))
-
-        for (i in 1:ncol(dfAdd)){
-            addVec <- as.vector(dfAdd[,i])
-            names(addVec) <- row.names(dfAdd)
-            colName <- as.vector(names(dfAdd)[i])
-            obj <- Seurat::AddMetaData(
-                object = obj,
-                metadata = addVec,
-                colName
-            )
-        }
-
-        #print(paste0("Dims after addition: ", dim(obj@meta.data)))
-        #print(paste0("Meta data column names: ", paste(names(obj@meta.data), collapse = ", ")))
-        return(obj)
-    }
-)
-
-## Done adding to Seurat metadata                                            ##
-###############################################################################
-
-###############################################################################
-#' Scan Parameters
-#'
-#' @title createDfCoord
-#'
-#' @param obj Seurat object
-#' @return paramerer list
-#' @import Seurat
-#' @export
-
-setGeneric(
-    name="createDfCoord",
-    def=function(
-        obj,
-        params = NULL
-    ) {
-        if (is.null(params)){
-            params <- biologicSeqTools::scanObjParams(obj)
-        }
-
-        ## Add reductions ##
-        reds <- names(obj@reductions)
-
-        for (i in 1:length(reds)){
-            dfAdd <- data.frame(obj@reductions[[reds[i]]]@cell.embeddings)
-            if (nrow(dfAdd) > 0){
-                obj <- biologicSeqTools::addDf2seuratMetaData(obj = obj, dfAdd = dfAdd)
-            }
-        }
-
-        ##
-        dfdbTable <- obj@meta.data
-        dfdbTable[["cellID"]] <- row.names(dfdbTable)
-        pos <- grep("sampleID", names(dfdbTable))
-        pos2 <- grep("orig.ident", names(dfdbTable))
-        if (length(pos) == 0 | length(pos2) == 1){
-            dfdbTable[["sampleID"]] <- dfdbTable[["orig.ident"]]
-        } else {
-            dfdbTable[["sampleID"]] <- "sampleID_TBD"
-        }
-
-        return(dfdbTable)
-
-    }
-)
-
-###############################################################################
-
-###############################################################################
-#' Scan Parameters
-#'
-#' TBD.
-#' @title createDfExpr
-#' @param obj Seurat object
-#' @return paramerer list
-#' @import Seurat
-#' @export
-
-
-setGeneric(
-    name="createDfExpr",
-    def=function(
-        obj,
-        assay = "RNA",
-        #slot = "data",
-        geneSel = NULL
-    ) {
-        Seurat::DefaultAssay(obj) <- assay
-        dfExpr <- data.frame(obj[[assay]]@data)
-        dfExpr[["gene"]] <- row.names(dfExpr)
-
-        if (!is.null(geneSel)){
-            dfExpr <- dfExpr[dfExpr$gene %in% geneSel, ]
-        }
-
-        dfExpr <- tidyr::gather(
-            dfExpr,
-            condition,
-            expr, 1:(ncol(dfExpr)-1),
-            factor_key=TRUE
-        )
-        dfExpr <- dfExpr[dfExpr$expr != 0,]
-        names(dfExpr) <- gsub("condition", "cellID", names(dfExpr))
-        names(dfExpr) <- gsub("expr", "lg10Expr", names(dfExpr))
-        return(dfExpr)
-    }
-)
 
 
 ###############################################################################
 
-###############################################################################
-#' Make Seurat Viewer
-#'
-#' TBD2.
-#'
-#' @param obj Seurat object
-#' @return app
-#' @export
 
-setGeneric(
-    name="seurat2viewer",
-    def=function(
-        obj,
-        assay = "RNA",
-        #slot = "data",
-        geneSel = NULL,
-        params = NULL,
-        projectName = "test"
-    ) {
-
-        if (is.null(params)){
-            params <- scanObjParams(obj)
-        }
-
-
-        dfCoord <- createDfCoord(obj, params = params)
-        names(dfCoord) <- gsub("[.]", "_", names(dfCoord))
-        params$x_axis <- gsub("[.]", "_", params$x_axis)
-        params$y_axis <- gsub("[.]", "_", params$y_axis)
-        params$splitPlotsBy <- gsub("[.]", "_", params$splitPlotsBy)
-        params$colorPlotsBy <- gsub("[.]", "_", params$colorPlotsBy)
-
-        dfExpr <- createDfExpr(obj = testObj, assay = "RNA")
-
-
-        dfIDTable <- dfExpr
-        dfIDTable[["gene_id"]] <- 0
-        dfIDTable <- unique(dfIDTable[,c("gene", "gene_id")])
-        dfIDTable <- dfIDTable[order(dfIDTable$gene, decreasing = F), ]
-        dfIDTable[["gene_id"]] <- 1:nrow(dfIDTable)
-
-
-        ###############################################################################
-        ## Add percentage expressed genes                                            ##
-
-
-        top30Var <- head(
-            x = VariableFeatures(object = testObj),
-            30
-        )
-
-        my_genes <- rownames(x = testObj@assays$RNA)
-        exp <- FetchData(testObj, my_genes)
-        ExprMatrix <- round(as.matrix(colMeans(exp  > 0)) *100,1)
-        colnames(ExprMatrix)[1] <- "count_cut_off"
-        dfExprMatrix <- data.frame(ExprMatrix)
-        dfExprMatrix[["gene"]] <- row.names(dfExprMatrix)
-        dfExprMatrix <- dfExprMatrix[dfExprMatrix$gene %in% top30Var, ]
-        dfExprMatrix <- dfExprMatrix[order(dfExprMatrix$count_cut_off, decreasing = T),]
-        geneDefault = as.vector(dfExprMatrix[1,"gene"])
-
-        ############
-        ## Create database
-        projectDir <- paste0(projectName)
-        dataDir <- paste0(projectDir, "/data")
-        paramDir <- paste0(projectDir, "/parameters")
-
-        connectDir <- paste0(dataDir, "/connect")
-        projectDB <- paste0(projectName, "_DB")
-
-        coordTb <- paste0(projectName, "_meta_data")
-        exprTb <- paste0(projectName, "_gene_expr_tb")
-        geneTb <- paste0(projectName, "_geneID_tb")
-
-        if (!dir.exists(projectDir)){
-            dir.create(projectDir)
-        }
-
-        if (!dir.exists(dataDir)){
-            dir.create(dataDir)
-        }
-
-        if (!dir.exists(connectDir)){
-            dir.create(connectDir)
-        }
-
-        if (!dir.exists(paramDir)){
-            dir.create(paramDir)
-        }
-
-        setwd(dataDir)
-        dfCoord[["row_names"]] <- 1:nrow(dfCoord)
-        conn <- RSQLite::dbConnect(RSQLite::SQLite(), projectDB)
-        RSQLite::dbWriteTable(conn, coordTb, dfCoord, overwrite =T)
-        cmd.string <- paste0("CREATE INDEX idx_cellID ON ",coordTb," (cellID);")
-        res <- DBI::dbGetQuery(
-            conn,
-            cmd.string
-        )
-        cmd.string <- paste0("CREATE INDEX idx_rowNames ON ",coordTb," (row_names);")
-        res <- DBI::dbGetQuery(
-            conn,
-            cmd.string
-        )
-
-        dfExpr[["row_names"]] <- 1:nrow(dfExpr)
-        RSQLite::dbWriteTable(conn, exprTb, dfExpr, overwrite =T)
-        cmd.string <- paste0("CREATE INDEX idx_rows ON ",exprTb," (row_names);")
-        res <- DBI::dbGetQuery(
-            conn,
-            cmd.string
-        )
-        cmd.string <- paste0("CREATE INDEX idx_cells ON ",exprTb," (cellID);")
-        res <- DBI::dbGetQuery(
-            conn,
-            cmd.string
-        )
-
-        RSQLite::dbWriteTable(conn, geneTb, dfIDTable, overwrite =T)
-        RSQLite::dbDisconnect(conn)
-
-
-        dfID <- data.frame(
-            type = "RSQLite",
-            url = "",
-            id = "",
-            id2 = "",
-            db = projectDB,
-            coordTb,
-            exprTb,
-            geneTb,
-            default = geneDefault
-        )
-
-        dfkey <- dfID
-        save(dfkey, file = "dfkey.rda")
-
-        setwd("connect")
-        write.table(
-            dfID,
-            "db.txt",
-            sep = "\t",
-            row.names = F
-        )
-
-
-
-        # setwd("../../parameters")
-        # yamlList <- list(
-        #   "XYsel" = unique(params[["x_axis"]]),
-        #   "XYsel_names" = unique(names(params[["x_axis"]])),
-        #   "allColorOptions" = unique(params[["colorPlotsBy"]]),
-        #   "allColorOptions_names" = unique(names(params[["colorPlotsBy"]])),
-        #   "splitOptions" = unique(params[["splitPlotsBy"]]),
-        #   "splitOptions_names" = unique(names(params[["splitPlotsBy"]])),
-        #   "sampleColorList" = unique(params[["sampleColorList"]]),
-        #   "sampleColorList_names" = unique(names(params[["sampleColorList"]]))
-        # )
-        #
-        # FN <- paste0("parameters.yaml")
-        # yaml::write_yaml(yaml::as.yaml(yamlList), FN, fileEncoding = "UTF-8")
-        # setwd("../")
-        #
-        # if (!dir.exists("Rsc")){
-        #     dir.create("Rsc")
-        # }
-        #
-        # if (!dir.exists("R")){
-        #   dir.create("R")
-        # }
-        #
-        # if (!dir.exists("instSC")){
-        #   dir.create("instSC")
-        # }
-        #
-        # if (!dir.exists("inst")){
-        #   dir.create("inst")
-        # }
-        #
-        # if (!dir.exists("manSC")){
-        #   dir.create("manSC")
-        # }
-        #
-        # if (!dir.exists("man")){
-        #   dir.create("man")
-        # }
-        #
-        # res <- file.copy(system.file("app.r", package = "biologicSC"), ".")
-        # res <- file.copy(system.file("NAMESPACE", package = "biologicSC"), ".")
-        # res <- file.copy(system.file("DESCRIPTION", package = "biologicSC"), ".")
-        #
-        # res <- file.copy(system.file("Rsc", package = "biologicSC"), "Rsc", recursive = T)
-        # files <- list.files("Rsc/Rsc")
-        # res <- file.copy(paste0("Rsc/Rsc/", files), "R")
-        #
-        # res <- file.copy("Rsc", "R", recursive = T)
-        #
-        # res <- file.copy(system.file("instSC", package = "biologicSC"), "instSC", recursive = T)
-        # files <- list.files("instSC/instSC")
-        # res <- file.copy(paste0("instSC/instSC/", files), "inst")
-        #
-        # res <- file.copy(system.file("manSC", package = "biologicSC"), "manSC", recursive = T)
-        # files <- list.files("manSC/manSC")
-        # res <- file.copy(paste0("manSC/manSC/", files), "man")
-
-    }
-)
+# setGeneric(
+#     name="seurat2viewer",
+#     def=function(
+#         obj,
+#         assay = "RNA",
+#         #slot = "data",
+#         geneSel = NULL,
+#         params = NULL,
+#         projectName = "test"
+#     ) {
+#
+#         if (is.null(params)){
+#             params <- scanObjParams(obj)
+#         }
+#
+#
+#         dfCoord <- createDfCoord(obj, params = params)
+#         names(dfCoord) <- gsub("[.]", "_", names(dfCoord))
+#         params$x_axis <- gsub("[.]", "_", params$x_axis)
+#         params$y_axis <- gsub("[.]", "_", params$y_axis)
+#         params$splitPlotsBy <- gsub("[.]", "_", params$splitPlotsBy)
+#         params$colorPlotsBy <- gsub("[.]", "_", params$colorPlotsBy)
+#
+#         dfExpr <- createDfExpr(obj = testObj, assay = "RNA")
+#
+#
+#         dfIDTable <- dfExpr
+#         dfIDTable[["gene_id"]] <- 0
+#         dfIDTable <- unique(dfIDTable[,c("gene", "gene_id")])
+#         dfIDTable <- dfIDTable[order(dfIDTable$gene, decreasing = F), ]
+#         dfIDTable[["gene_id"]] <- 1:nrow(dfIDTable)
+#
+#
+#         ###############################################################################
+#         ## Add percentage expressed genes                                            ##
+#
+#
+#         top30Var <- head(
+#             x = VariableFeatures(object = testObj),
+#             30
+#         )
+#
+#         my_genes <- rownames(x = testObj@assays$RNA)
+#         exp <- FetchData(testObj, my_genes)
+#         ExprMatrix <- round(as.matrix(colMeans(exp  > 0)) *100,1)
+#         colnames(ExprMatrix)[1] <- "count_cut_off"
+#         dfExprMatrix <- data.frame(ExprMatrix)
+#         dfExprMatrix[["gene"]] <- row.names(dfExprMatrix)
+#         dfExprMatrix <- dfExprMatrix[dfExprMatrix$gene %in% top30Var, ]
+#         dfExprMatrix <- dfExprMatrix[order(dfExprMatrix$count_cut_off, decreasing = T),]
+#         geneDefault = as.vector(dfExprMatrix[1,"gene"])
+#
+#         ############
+#         ## Create database
+#         projectDir <- paste0(projectName)
+#         dataDir <- paste0(projectDir, "/data")
+#         paramDir <- paste0(projectDir, "/parameters")
+#
+#         connectDir <- paste0(dataDir, "/connect")
+#         projectDB <- paste0(projectName, "_DB")
+#
+#         coordTb <- paste0(projectName, "_meta_data")
+#         exprTb <- paste0(projectName, "_gene_expr_tb")
+#         geneTb <- paste0(projectName, "_geneID_tb")
+#
+#         if (!dir.exists(projectDir)){
+#             dir.create(projectDir)
+#         }
+#
+#         if (!dir.exists(dataDir)){
+#             dir.create(dataDir)
+#         }
+#
+#         if (!dir.exists(connectDir)){
+#             dir.create(connectDir)
+#         }
+#
+#         if (!dir.exists(paramDir)){
+#             dir.create(paramDir)
+#         }
+#
+#         setwd(dataDir)
+#         dfCoord[["row_names"]] <- 1:nrow(dfCoord)
+#         conn <- RSQLite::dbConnect(RSQLite::SQLite(), projectDB)
+#         RSQLite::dbWriteTable(conn, coordTb, dfCoord, overwrite =T)
+#         cmd.string <- paste0("CREATE INDEX idx_cellID ON ",coordTb," (cellID);")
+#         res <- DBI::dbGetQuery(
+#             conn,
+#             cmd.string
+#         )
+#         cmd.string <- paste0("CREATE INDEX idx_rowNames ON ",coordTb," (row_names);")
+#         res <- DBI::dbGetQuery(
+#             conn,
+#             cmd.string
+#         )
+#
+#         dfExpr[["row_names"]] <- 1:nrow(dfExpr)
+#         RSQLite::dbWriteTable(conn, exprTb, dfExpr, overwrite =T)
+#         cmd.string <- paste0("CREATE INDEX idx_rows ON ",exprTb," (row_names);")
+#         res <- DBI::dbGetQuery(
+#             conn,
+#             cmd.string
+#         )
+#         cmd.string <- paste0("CREATE INDEX idx_cells ON ",exprTb," (cellID);")
+#         res <- DBI::dbGetQuery(
+#             conn,
+#             cmd.string
+#         )
+#
+#         RSQLite::dbWriteTable(conn, geneTb, dfIDTable, overwrite =T)
+#         RSQLite::dbDisconnect(conn)
+#
+#
+#         dfID <- data.frame(
+#             type = "RSQLite",
+#             url = "",
+#             id = "",
+#             id2 = "",
+#             db = projectDB,
+#             coordTb,
+#             exprTb,
+#             geneTb,
+#             default = geneDefault
+#         )
+#
+#         dfkey <- dfID
+#         save(dfkey, file = "dfkey.rda")
+#
+#         setwd("connect")
+#         write.table(
+#             dfID,
+#             "db.txt",
+#             sep = "\t",
+#             row.names = F
+#         )
+#
+#
+#
+#         # setwd("../../parameters")
+#         # yamlList <- list(
+#         #   "XYsel" = unique(params[["x_axis"]]),
+#         #   "XYsel_names" = unique(names(params[["x_axis"]])),
+#         #   "allColorOptions" = unique(params[["colorPlotsBy"]]),
+#         #   "allColorOptions_names" = unique(names(params[["colorPlotsBy"]])),
+#         #   "splitOptions" = unique(params[["splitPlotsBy"]]),
+#         #   "splitOptions_names" = unique(names(params[["splitPlotsBy"]])),
+#         #   "sampleColorList" = unique(params[["sampleColorList"]]),
+#         #   "sampleColorList_names" = unique(names(params[["sampleColorList"]]))
+#         # )
+#         #
+#         # FN <- paste0("parameters.yaml")
+#         # yaml::write_yaml(yaml::as.yaml(yamlList), FN, fileEncoding = "UTF-8")
+#         # setwd("../")
+#         #
+#         # if (!dir.exists("Rsc")){
+#         #     dir.create("Rsc")
+#         # }
+#         #
+#         # if (!dir.exists("R")){
+#         #   dir.create("R")
+#         # }
+#         #
+#         # if (!dir.exists("instSC")){
+#         #   dir.create("instSC")
+#         # }
+#         #
+#         # if (!dir.exists("inst")){
+#         #   dir.create("inst")
+#         # }
+#         #
+#         # if (!dir.exists("manSC")){
+#         #   dir.create("manSC")
+#         # }
+#         #
+#         # if (!dir.exists("man")){
+#         #   dir.create("man")
+#         # }
+#         #
+#         # res <- file.copy(system.file("app.r", package = "biologicSC"), ".")
+#         # res <- file.copy(system.file("NAMESPACE", package = "biologicSC"), ".")
+#         # res <- file.copy(system.file("DESCRIPTION", package = "biologicSC"), ".")
+#         #
+#         # res <- file.copy(system.file("Rsc", package = "biologicSC"), "Rsc", recursive = T)
+#         # files <- list.files("Rsc/Rsc")
+#         # res <- file.copy(paste0("Rsc/Rsc/", files), "R")
+#         #
+#         # res <- file.copy("Rsc", "R", recursive = T)
+#         #
+#         # res <- file.copy(system.file("instSC", package = "biologicSC"), "instSC", recursive = T)
+#         # files <- list.files("instSC/instSC")
+#         # res <- file.copy(paste0("instSC/instSC/", files), "inst")
+#         #
+#         # res <- file.copy(system.file("manSC", package = "biologicSC"), "manSC", recursive = T)
+#         # files <- list.files("manSC/manSC")
+#         # res <- file.copy(paste0("manSC/manSC/", files), "man")
+#
+#     }
+# )
 
 ###############################################################################
 
