@@ -1,2 +1,4 @@
+^renv$
+^renv\.lock$
 ^biologicSeqTools\.Rproj$
 ^\.Rproj\.user$
