@@ -7438,7 +7438,7 @@ upload.datatable.to.database <- function(
                 paste(not.assigned,
                       collapse = ', '
                 ),
-                ". Datatable not uploaded to database.")
+                ". Datatable completed.")
         )
         stop(not.assigned)
     }
