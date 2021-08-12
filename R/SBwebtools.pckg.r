@@ -7539,10 +7539,11 @@ upload.datatable.to.database <- function(
             }, error=function(e){cat("Upload errror :",conditionMessage(e), "\n")})
         }
 
-        print(paste0(i * increment, " rows out of ",totalRows," uploaded to database..."))
+        print(paste0(i * increment, " rows out of ",totalRows," processed..."))
         ## Connect to database for dbtable upload  ##
     }
 
+    print("Processing successfully completed")
     ####################################################
     ## Function alterDBtable
     alterDBtable <- function(
