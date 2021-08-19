@@ -12441,10 +12441,10 @@ assignDbUsersAndPrivileges <- function(
         library(RMySQL)
         dbDB <- dbConnect(
             drv = RMySQL::MySQL(), 
-            user = db.user, 
-            password = db.pwd, 
+            user = user, 
+            password = password, 
             host = host,
-            dbname = primDataDB
+            dbname = dbname
         ) 
         
         tryCatch(res <- DBI::dbGetQuery(dbDB, query), error = function(c) {
