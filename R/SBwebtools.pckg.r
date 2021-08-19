@@ -7285,7 +7285,7 @@ upload.datatable.to.database <- function(
         print("Table names clipped to 64 characters.")
         names(df.data) <- substr(names(df.data), 1, 64)
     }
-
+    
 
     if (startOnlyWithConnectionCount1){
 
@@ -7379,7 +7379,7 @@ upload.datatable.to.database <- function(
             user = user,
             password = password,
             host = host,
-            dbname=prim.data.db,
+            #dbname=prim.data.db,
             new.table = TRUE
         )
 
@@ -12400,5 +12400,177 @@ excel <- function(df) {
 #     }
 # )
 
+###############################################################################
+
+###############################################################################
+## Create user and assign privileges                                         ##
+
+#' @title assignDbUsersAndPrivileges
+#'
+#' @description This function allows you to express your love for the superior furry animal.
+#' @param agree Do you agree dogs are the best pet? Defaults to TRUE.
+#' @keywords database utils
+#' @export
+#' @import DBI RMySQL
+#' @import methods
+
+assignDbUsersAndPrivileges <- function(
+    accessFilePath = shinyDataPath,
+    hostDbUrl = "10.27.241.82",
+    appUserName = substr(paste0(project_id, "_aUser"), 1, 30),
+    geneDefault = "SLPI",
+    domains = c("shiny-bioinformatics.crick.ac.uk", "10.%"),
+    dbname = "prim.data.db",
+    tables = c("coordTb" = PCAdbTableName,"exprTb" = expDbTable,"geneTb" = geneTb),
+    recreateProjectUser = TRUE,
+    dbAdminUser = "boeings",
+    dbAdminPwd = "db.pwd"
+) {
+    
+    ############################
+    ## Helper function 
+    doQuery <- function(
+        user = "db.user", 
+        password = "db.upload.pwd", 
+        host = "host",
+        dbname = "primDataDB",
+        query = "mysql db query",
+        #existingAccessFileName = existingAccessFileName
+        resOut = FALSE
+    ){
+        library(RMySQL)
+        dbDB <- dbConnect(
+            drv = RMySQL::MySQL(), 
+            user = db.user, 
+            password = db.pwd, 
+            host = host,
+            dbname = primDataDB
+        ) 
+        
+        tryCatch(res <- DBI::dbGetQuery(dbDB, query), error = function(c) {
+            c$message <- stop(paste0("Error in ", query, "."))
+        })
+        
+        
+        DBI::dbDisconnect(dbDB)
+        if (resOut){
+            return(res)
+        }
+        
+    }
+    
+    
+    if (file.exists(paste0(accessFilePath, "db.txt"))){
+        df <- read.delim(paste0(accessFilePath, "db.txt"), header = T, sep="\t", stringsAsFactors = F)
+        sPwd <- as.vector(df$id2)
+        sUser <- as.vector(df$id)
+    } else {
+        sUser <- substr(appUserName, 1, 30)
+        sPwd <-c(2:9,letters,LETTERS)
+        sPwd <- paste(sample(sPwd,8),collapse="")
+    }
+    
+    if (!file.exists(paste0(accessFilePath, "db.txt"))){
+        ## Create user in db
+        for (k in 1:length(domains)) {
+            query0 <- paste0("SELECT User, Host FROM mysql.user WHERE User = '",sUser,"' AND Host = '",domains[k],"';")
+            
+            res <- doQuery(
+                user = dbAdminUser, 
+                password = dbAdminPwd, 
+                host = hostDbUrl,
+                dbname = dbname,
+                query = query0,
+                #existingAccessFileName = existingAccessFileName
+                resOut = TRUE
+            )
+            
+            if (nrow(res) > 0){
+                query0a <- paste0("DROP USER '",sUser,"'@'",domains[k],"';")   
+                #doQuery(Obio, query = query0a)
+                
+                doQuery(
+                    user = dbAdminUser, 
+                    password = dbAdminPwd, 
+                    host = hostDbUrl,
+                    dbname = dbname,
+                    query = query0a,
+                    #existingAccessFileName = existingAccessFileName
+                    resOut = FALSE
+                )
+            }
+            
+            query1 <- paste0(
+                "CREATE USER '",
+                sUser, 
+                "'@'",domains[k],"' IDENTIFIED BY '",
+                sPwd,
+                "';"
+            )
+            
+            doQuery(
+                user = dbAdminUser, 
+                password = dbAdminPwd, 
+                host = hostDbUrl,
+                dbname = dbname,
+                query = query1,
+                #existingAccessFileName = existingAccessFileName
+                resOut = FALSE
+            )
+        } # End for k-loop user fix
+        
+        
+        ## Make password file 
+        ## Create log-in file ##
+        
+        
+        dfID <- data.frame(
+            type = "main",
+            dataMode = dataMode,
+            url = hostDbUrl,
+            id = sUser,
+            id2 = sPwd,
+            db = dbname,
+            coordTb = tables["coordTb"],
+            exprTb = tables["exprTb"],
+            geneTb = tables["geneTb"],
+            default = "SILI"
+        )
+        
+        if (!file.exists(accessFilePath)){
+            dir.create(accessFilePath, recursive = T)
+        }
+        
+        write.table(dfID, paste0(accessFilePath, "db.txt"), row.names = F, sep="\t")
+        ## Done making password file 
+    }
+    
+    ## Done creating users for all domains                                   ##
+    ###########################################################################
+    
+    ###########################################################################
+    ## GRANT access to the app user to all relevant tables                   ##
+    for (i in 1:length(tables)){
+        for (k in 1:length(domains)){
+            query7 <- paste0(
+                "GRANT SELECT on ", dbname,".",tables[i], " TO '",sUser,"'@'",domains[k],"';"
+            )
+            
+            doQuery(
+                user = dbAdminUser, 
+                password = dbAdminPwd, 
+                host = hostDbUrl,
+                dbname = dbname,
+                query = query7,
+                #existingAccessFileName = existingAccessFileName
+                resOut = FALSE
+            )
+        }
+    }
+    ## Done                                                                  ##
+    ###########################################################################
+    
+}    
+## End of function assignDbUsersAndPrivileges                                ##
 ###############################################################################
 
