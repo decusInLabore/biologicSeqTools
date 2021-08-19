@@ -12624,8 +12624,8 @@ uploadDbTableInfile <- function(
         library(RMySQL)
         dbDB <- dbConnect(
             drv = RMySQL::MySQL(), 
-            user = db.user, 
-            password = db.pwd, 
+            user = user, 
+            password = password, 
             host = host,
             dbname = dbname
         ) 
