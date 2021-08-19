@@ -12627,7 +12627,7 @@ uploadDbTableInfile <- function(
             user = db.user, 
             password = db.pwd, 
             host = host,
-            dbname = primDataDB
+            dbname = dbname
         ) 
         
         tryCatch(res <- DBI::dbGetQuery(dbDB, query), error = function(c) {
