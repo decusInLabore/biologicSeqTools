@@ -12424,7 +12424,8 @@ assignDbUsersAndPrivileges <- function(
     tables = c("coordTb" = PCAdbTableName,"exprTb" = expDbTable,"geneTb" = geneTb),
     recreateProjectUser = TRUE,
     dbAdminUser = "boeings",
-    dbAdminPwd = "db.pwd"
+    dbAdminPwd = "db.pwd",
+    dataMode = "MySQL"
 ) {
     
     ############################
