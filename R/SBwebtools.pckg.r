@@ -12574,3 +12574,176 @@ assignDbUsersAndPrivileges <- function(
 ## End of function assignDbUsersAndPrivileges                                ##
 ###############################################################################
 
+###############################################################################
+## Upload datatable infile                                                   ##
+
+#' @title uploadDbTablInfile
+#'
+#' @description This function allows you to express your love for the superior furry animal.
+#' @param agree Do you agree dogs are the best pet? Defaults to TRUE.
+#' @keywords dogs
+#' @export
+#' @import DBI RMySQL
+#' @import methods
+
+
+uploadDbTableInfile <- function(
+    host = NULL,
+    user = NULL,
+    password = NULL,
+    prim.data.db = "project.database",
+    dbTableName = "rnaseqdbTableName",
+    df.data = "df.data.to.upload",
+    db.col.parameter.list = list(
+        "VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci" = c("gene_description"),
+        "VARCHAR(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci" = c("ENSG", "ENSMUSG", "hgnc_symbol", "mgi_symbol", "uniprot", "entrezgene","display_ptm", "^sequence_window", "p_site_env","for_GSEA_gene_chip","associated_gene_name", "gene_type"),
+        "VARCHAR(1) CHARACTER SET latin1 COLLATE latin1_swedish_ci" = c("ppos", "amino_acid", "charge","known_site"),
+        "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
+        "INT(8) NULL DEFAULT NULL" = c("row_id", "cluster_order","cluster_id", "count_cut_off", "^position$", "raw_counts"),
+        "DECIMAL(6,3) NULL DEFAULT NULL" = c("norm_counts", "NES", "logFC", "lg2_avg", "intensity", "^int", "iBAQ","^localization_prob$"),
+        "DECIMAL(6,5) NULL DEFAULT NULL" = c("padj", "pvalue","^pep$")
+    ),
+    new.table = TRUE,
+    cols2Index = NULL,
+    indexName = NULL,
+    mode = "MySQL",
+    tempFileName = "temp.upload.csv"
+    
+){
+    ############################
+    ## Helper function 
+    doQuery <- function(
+        user = "db.user", 
+        password = "db.upload.pwd", 
+        host = "host",
+        dbname = "primDataDB",
+        query = "mysql db query",
+        #existingAccessFileName = existingAccessFileName
+        resOut = FALSE
+    ){
+        library(RMySQL)
+        dbDB <- dbConnect(
+            drv = RMySQL::MySQL(), 
+            user = db.user, 
+            password = db.pwd, 
+            host = host,
+            dbname = primDataDB
+        ) 
+        
+        tryCatch(res <- DBI::dbGetQuery(dbDB, query), error = function(c) {
+            c$message <- stop(paste0("Error in ", query, "."))
+        })
+        
+        
+        DBI::dbDisconnect(dbDB)
+        if (resOut){
+            return(res)
+        }
+        
+    }
+    
+    ###########################################################################
+    ## save table locally for in file upload                                 ##
+    
+    write.csv(df.data, tempFileName, row.names = F)
+    rm(df.data)
+    
+    ##                                                                       ##
+    ###########################################################################
+    
+    ## Drop existing table if exists
+    
+    query1 <- paste0("DROP TABLE IF EXISTS ", dbTableName, ";\n")
+    
+    doQuery(
+        user = user, 
+        password = password, 
+        host = host,
+        dbname = prim.data.db,
+        query = query1,
+        #existingAccessFileName = existingAccessFileName
+        resOut = FALSE
+    )
+    
+    
+    query2 <- paste0(
+        #query,
+        "CREATE TABLE IF NOT EXISTS ",
+        dbTableName,
+        " (gene VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci, cellID VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci, lg10Expr DECIMAL(6,3) NULL DEFAULT NULL, row_names INT(10) NOT NULL AUTO_INCREMENT,PRIMARY KEY (row_names)); "
+    )
+    
+    doQuery(
+        user = user, 
+        password = password, 
+        host = host,
+        dbname = prim.data.db,
+        query = query2,
+        #existingAccessFileName = existingAccessFileName
+        resOut = FALSE
+    )
+    
+    print("Data is being rendered. This may take a few minutes for larger datasets.")
+    
+    ## infile upload
+    query3 <- paste0(
+        #query,
+        "LOAD DATA LOCAL INFILE '",
+        tempFileName,
+        "' INTO TABLE ",
+        dbTableName, 
+        " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' IGNORE 1 LINES (gene, cellID, lg10Expr, row_names);"
+    )
+    
+    
+    doQuery(
+        user = user, 
+        password = password, 
+        host = host,
+        dbname = prim.data.db,
+        query = query3,
+        #existingAccessFileName = existingAccessFileName
+        resOut = FALSE
+    )
+    
+    ## alter and index 
+    query4 <- paste0(
+        #query,
+        "ALTER TABLE ", dbTableName, " ADD UNIQUE(row_names);"
+    )
+    
+    doQuery(
+        user = user, 
+        password = password, 
+        host = host,
+        dbname = prim.data.db,
+        query = query4,
+        #existingAccessFileName = existingAccessFileName
+        resOut = FALSE
+    )
+    
+    
+    
+    query5 <- paste0(
+        #query,
+        "CREATE INDEX idx_gene ON ", dbTableName, " (gene);"
+    )
+    
+    doQuery(
+        user = user, 
+        password = password, 
+        host = host,
+        dbname = prim.data.db,
+        query = query4,
+        #existingAccessFileName = existingAccessFileName
+        resOut = FALSE
+    )
+    unlink(tempFileName)
+    print("Data loaded infile.")
+}
+
+
+## Done                                                                      ##
+###############################################################################
+
+
