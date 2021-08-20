@@ -12414,11 +12414,13 @@ excel <- function(df) {
 #' @import DBI RMySQL
 #' @import methods
 
+# Maximum length for maria db username is 16 #
+
 assignDbUsersAndPrivileges <- function(
     accessFilePath = shinyDataPath,
     hostDbUrl = "10.27.241.82",
-    appUserName = substr(paste0(project_id, "_aUser"), 1, 30),
-    geneDefault = "SLPI",
+    appUserName = substr(paste0(project_id, "_aUser"), 1, 15),
+    geneDefault = NULL,
     domains = c("shiny-bioinformatics.crick.ac.uk", "10.%"),
     dbname = "prim.data.db",
     tables = c("coordTb" = PCAdbTableName,"exprTb" = expDbTable,"geneTb" = geneTb),
@@ -12427,6 +12429,9 @@ assignDbUsersAndPrivileges <- function(
     dbAdminPwd = "db.pwd",
     dataMode = "MySQL"
 ) {
+    
+    ## Maximum length for app user name is 16
+    appUserName <- substr(appUserName, 1, 15)
     
     ############################
     ## Helper function 
