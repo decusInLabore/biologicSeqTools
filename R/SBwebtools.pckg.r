@@ -12729,7 +12729,6 @@ uploadDbTableInfile <- function(
     )
     
     
-    
     query5 <- paste0(
         #query,
         "CREATE INDEX idx_gene ON ", dbTableName, " (gene);"
@@ -12740,7 +12739,7 @@ uploadDbTableInfile <- function(
         password = password, 
         host = host,
         dbname = prim.data.db,
-        query = query4,
+        query = query5,
         #existingAccessFileName = existingAccessFileName
         resOut = FALSE
     )
