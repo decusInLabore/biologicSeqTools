@@ -7879,10 +7879,10 @@ create.gsea.rnk.files <- function(
     #setwd(localWorkDir)
     #Create GSEA directory
     if (is.null(GSEADir)){
-        GSEADir = paste(localWorkDir, "GSEA", sep = "")
+        GSEADir = paste(localWorkDir, "GSEA/", sep = "")
     }
 
-    if (!exists(GSEADir)) {
+    if (!dir.exists(GSEADir)) {
         dir.create(GSEADir)
     }
 
