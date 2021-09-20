@@ -7081,12 +7081,12 @@ inferDBcategories <- function(
             } else {
                 if (max(dfData[,i], na.rm = T) <= 1){
                     classLabel <- "DECIMAL(6,5) NULL DEFAULT NULL"
-                } if else (max(dfData[,i], na.rm = T) <= 1000){
+                } else if (max(dfData[,i], na.rm = T) <= 1000){
                     classLabel <- "DECIMAL(6,3) NULL DEFAULT NULL"
-                } if else (max(dfData[,i], na.rm = T) <= 10000){
+                } else if (max(dfData[,i], na.rm = T) <= 10000){
                     classLabel <- "DECIMAL(6,1) NULL DEFAULT NULL"
                 } else {
-                    classLabel <- "DECIMAL(8,1) NULL DEFAULT NULL"
+                    classLabel <- "DECIMAL(8,0) NULL DEFAULT NULL"
                 }
             }
         } else {
