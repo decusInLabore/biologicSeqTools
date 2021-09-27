@@ -12446,7 +12446,8 @@ assignDbUsersAndPrivileges <- function(
         dbname = "primDataDB",
         query = "mysql db query",
         #existingAccessFileName = existingAccessFileName
-        resOut = FALSE
+        resOut = FALSE,
+        geneDefault = NULL
     ){
         library(RMySQL)
         dbDB <- dbConnect(
@@ -12544,7 +12545,7 @@ assignDbUsersAndPrivileges <- function(
             coordTb = tables["coordTb"],
             exprTb = tables["exprTb"],
             geneTb = tables["geneTb"],
-            default = "SILI"
+            default = geneDefault
         )
         
         if (!file.exists(accessFilePath)){
