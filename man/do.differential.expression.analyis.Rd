@@ -4,7 +4,7 @@
 \alias{do.differential.expression.analyis}
 \title{A method}
 \usage{
-\method{do}{differential.expression.analyis}(
+do.differential.expression.analyis(
   raw.counts.filt = raw.counts.filt,
   DEseq2Dir = paste0(localWorkDir, "DESeq2"),
   df.design = df.design,
