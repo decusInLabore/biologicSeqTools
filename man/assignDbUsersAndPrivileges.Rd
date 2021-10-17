@@ -7,14 +7,15 @@
 assignDbUsersAndPrivileges(
   accessFilePath = shinyDataPath,
   hostDbUrl = "10.27.241.82",
-  appUserName = substr(paste0(project_id, "_aUser"), 1, 30),
-  geneDefault = "SLPI",
+  appUserName = substr(paste0(project_id, "_aUser"), 1, 15),
+  geneDefault = NULL,
   domains = c("shiny-bioinformatics.crick.ac.uk", "10.\%"),
   dbname = "prim.data.db",
   tables = c(coordTb = PCAdbTableName, exprTb = expDbTable, geneTb = geneTb),
   recreateProjectUser = TRUE,
   dbAdminUser = "boeings",
-  dbAdminPwd = "db.pwd"
+  dbAdminPwd = "db.pwd",
+  dataMode = "MySQL"
 )
 }
 \arguments{

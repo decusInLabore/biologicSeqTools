@@ -12756,4 +12756,69 @@ uploadDbTableInfile <- function(
 ## Done                                                                      ##
 ###############################################################################
 
+###############################################################################
+## Function createPowerpointPresentation                                     ##
+
+#' @title doQuery
+#'
+#'
+#' @param user 
+#' @param password 
+#' @param host
+#' @param dbname
+#' @param query
+#' @param resOut
+#' @param geneDefault
+#' @param This can be MySQL or SQLite
+#' @import RMySQL
+#' @import DBI
+#' @import RSQLite
+#' @return Res
+#' @export
+doQuery <- function(
+    user = "db.user", 
+    password = "db.upload.pwd", 
+    host = "host",
+    dbname = "primDataDB",
+    query = "mysql db query",
+    #existingAccessFileName = existingAccessFileName
+    resOut = FALSE,
+    geneDefault = NULL,
+    mode = "MySQL"
+){
+    #library(RMySQL)
+    if (mode == "SQLite"){
+        
+        dbDB <- DBI::dbConnect(
+            drv = RSQLite::SQLite(),
+            dbname = dbname
+        )
+        
+    } else {
+        
+        dbDB <- DBI::dbConnect(
+            drv = RMySQL::MySQL(),
+            user = user,
+            password = password,
+            host = host,
+            dbname = dbname
+        )
+        
+    }
+    
+    tryCatch(res <- DBI::dbGetQuery(dbDB, query), error = function(c) {
+        c$message <- stop(paste0("Error in ", query, "."))
+    })
+    
+    
+    DBI::dbDisconnect(dbDB)
+    if (resOut){
+        return(res)
+    }
+    
+}
+
+##                                                                           ##
+###############################################################################
+
 
