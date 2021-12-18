@@ -12821,4 +12821,68 @@ doQuery <- function(
 ##                                                                           ##
 ###############################################################################
 
+###############################################################################
+## Create Exel Workbook                                                      ##
+
+
+#' @title createExcelWorkbook
+#'
+#' @description This function creates an Excel workbook from a list with 
+#' data.frames. Each item of the list will become a sheet in the Excel
+#' output file
+#' @param excelList A list of dataframes
+#' @param outPutFN A output filepath/filename
+#' @import openxlsx
+#' @export
+#'
+
+
+createExcelWorkbook <- function(
+    excelList,
+    outPutFN = "result.table.xlsx"
+){
+    
+    ## Check if all names are less than 32 characters ##
+    names(excelList) <- sapply(names(excelList), function(x) substr(x, 1, 32))
+    
+    ## Make sure all entries are unique - particularly after shortening ##
+    if (length(unique(names(excelList))) != length(names(excelList))){
+        names(excelList) <- sapply(names(excelList), function(x) substr(names(excelList),1, 29))
+        names(excelList) <- paste(names(excelList), "_", 1:lenght(names(excelList)))
+    }
+    
+    
+    wb <- openxlsx::createWorkbook()
+    
+    ## Style headers ##
+    hs1 <- openxlsx::createStyle(
+        fontColour = "#ffffff",
+        fgFill = "#000000",
+        halign = "CENTER",
+        textDecoration = "Bold"
+    )
+    
+    for (i in 1:length(excelList)){
+        sheet <- names(excelList)[i]
+        dfOutput <- data.frame(excelList[[i]])
+        openxlsx::addWorksheet(wb, sheet)
+        openxlsx::freezePane(wb, sheet ,  firstActiveRow = 2)
+        openxlsx::writeData(wb, sheet = sheet, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
+        
+    }
+    
+    openxlsx::saveWorkbook(
+        wb,
+        outPutFN ,
+        overwrite = TRUE
+    )
+    
+    print(paste0("Excel output files create and depoisted in ", outPutFN))
+}
+
+
+
+
+## End: Create Excel Workbook                                                ##
+###############################################################################
 
