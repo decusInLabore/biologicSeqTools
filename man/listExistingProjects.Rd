@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{listExistingProjects}
 \alias{listExistingProjects}
-\title{A method}
+\title{listExistingProject}
 \usage{
 listExistingProjects(
   user = "boeings",

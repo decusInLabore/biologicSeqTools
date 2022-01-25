@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{addProject2ProjectTable}
 \alias{addProject2ProjectTable}
-\title{A method}
+\title{addProject2ProjectTable}
 \usage{
 addProject2ProjectTable(
   dbname = "reference_categories_db_new",

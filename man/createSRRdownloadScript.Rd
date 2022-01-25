@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{createSRRdownloadScript}
 \alias{createSRRdownloadScript}
-\title{A method}
+\title{createSRRdownloadScript}
 \usage{
 createSRRdownloadScript(
   srr.id.vector = "srr.id.vector",

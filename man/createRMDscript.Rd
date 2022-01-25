@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{createRMDscript}
 \alias{createRMDscript}
-\title{A method}
+\title{createRMDscript}
 \usage{
 createRMDscript(obj)
 }

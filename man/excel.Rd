@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{excel}
 \alias{excel}
-\title{A method}
+\title{excel}
 \usage{
 excel(df)
 }

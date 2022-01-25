@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{createSRAdownloadScript}
 \alias{createSRAdownloadScript}
-\title{A method}
+\title{createSRAdownloadScript}
 \usage{
 createSRAdownloadScript(
   sra.id.vector = "sra.id.vector",

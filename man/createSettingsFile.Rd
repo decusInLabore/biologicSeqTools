@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{createSettingsFile}
 \alias{createSettingsFile}
-\title{A method}
+\title{createSettingsFile}
 \usage{
 createSettingsFile(
   obj = "object",

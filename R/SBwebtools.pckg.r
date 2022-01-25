@@ -8583,7 +8583,7 @@ create.GSEA.table <- function(
 
 ###############################################################################
 ## (2B) createSettingsFile()                                                 ##
-#' @title A method
+#' @title createSettingsFile
 #'
 #' @description Method description
 #' @param agree TBD
@@ -9021,7 +9021,7 @@ createSettingsFile <- function(
 
 ##############################################################################
 ## (2C) createSettingsJSON()                                                ##
-#' @title A method
+#' @title createSettingsJSON
 #'
 #' @description Method description
 #' @param agree TBD
@@ -9401,7 +9401,7 @@ createSettingsJSON <- function(
 ##                                                                           ##
 ###############################################################################
 ##
-#' @title A method
+#' @title createSeuratSettingsFile
 #'
 #' @description Method description
 #' @param agree TBD
@@ -9712,7 +9712,7 @@ createSeuratSettingsFile <- function(
 ###############################################################################
 ## (20) Function add2labCatSelectionDBtable()                                ##
 ##                                                                           ##
-#' @title A method
+#' @title add2labCatSelectionDBtable
 #'
 #' @description Method description
 #' @param agree TBD
@@ -9779,7 +9779,7 @@ add2labCatSelectionDBtable <- function (
 ###############################################################################
 ## (2) Create.website.parameters                                             ##
 ###############################################################################
-#' @title A method
+#' @title create.website.parameters
 #'
 #' @description Method description
 #' @param agree TBD
@@ -10730,7 +10730,7 @@ create.website.parameters <- function(
 
 ###############################################################################
 ## (47) listExistingProjects()                                              ##
-#' @title A method
+#' @title listExistingProject
 #'
 #' @description Method description
 #' @param agree TBD
@@ -10757,7 +10757,7 @@ listExistingProjects <- function(
 
 ###############################################################################
 ## (44) createNewProject                                                     ##
-#' @title A method
+#' @title createNewProject
 #'
 #' @description Method description
 #' @param agree TBD
@@ -10831,7 +10831,7 @@ createNewProject <- function(
 
 ###############################################################################
 ## (45) List project in projects table                                       ##
-#' @title A method
+#' @title addProject2ProjectTable
 #'
 #' @description Method description
 #' @param agree TBD
@@ -10918,7 +10918,7 @@ addProject2ProjectTable <- function(
 
 ###############################################################################
 ## Function: (32) createSRAdownloadScript()                                       ##
-#' @title A method
+#' @title createSRAdownloadScript
 #'
 #' @description Method description
 #' @param agree TBD
@@ -11070,7 +11070,7 @@ createSRAdownloadScript <- function(
 
 ###############################################################################
 ## Function: (32b) createSRRdownloadScript()                                       ##
-#' @title A method
+#' @title createSRRdownloadScript
 #'
 #' @description Method description
 #' @param agree TBD
@@ -11210,7 +11210,7 @@ createSRRdownloadScript <- function(
 ###############################################################################
 # (9C) Create timecourse cat lines                                            #
 ###############################################################################
-#' @title A method
+#' @title create.timecourse.cat.lines
 #'
 #' @description Method description
 #' @param agree TBD
@@ -11291,7 +11291,7 @@ create.timecourse.cat.lines <- function(
 ###############################################################################
 ## (18) Retrieve gene category from db                                       ##
 ###############################################################################
-#' @title A method
+#' @title retrieve.gene.category.from.db
 #'
 #' @description Method description
 #' @param agree TBD
@@ -11412,7 +11412,7 @@ retrieve.gene.category.from.db <- function(
 
 ###############################################################################
 ## Function update                                                           ##
-#' @title A method
+#' @title add.category.to.lab.reference.table.hs
 #'
 #' @description Method description
 #' @param agree TBD
@@ -11745,7 +11745,7 @@ add.category.to.lab.reference.table.hs <- function(
 ###############################################################################
 # (4) createRMDscript                                                         #
 ###############################################################################
-#' @title A method
+#' @title createRMDscript
 #'
 #' @description Method description
 #' @param agree TBD
@@ -11779,7 +11779,7 @@ setGeneric(
 ###############################################################################
 ## (21) msigdb.gmt2refDB()                                                   ##
 ###############################################################################
-#' @title A method
+#' @title msigdb.gmt2refDB
 #'
 #' @description Method description
 #' @param agree TBD
@@ -12065,7 +12065,7 @@ msigdb.gmt2refDB <- function(
 ###############################################################################
 
 ## This function is a derivative of the Seurat DotPlot function
-#' @title A method
+#' @title DotPlotSB
 #'
 #' @description Method description
 #' @param agree TBD
@@ -12303,7 +12303,7 @@ DotPlotSB <- function (
 #####################################################
 # (15) Function to list all tables in a database     #
 #####################################################
-#' @title A method
+#' @title list.db.tables.in.db
 #'
 #' @description Method description
 #' @param agree TBD
@@ -12328,7 +12328,7 @@ list.db.tables.in.db <- function(dbname = "reference_categories_db_new",
 #####################################################
 # (16) Function to list all columns in a db table    #
 #####################################################
-#' @title A method
+#' @title list.db.table.col.names
 #'
 #' @description Method description
 #' @param agree TBD
@@ -12356,7 +12356,7 @@ list.db.table.col.names <- function(dbtable = "interpro_categori",
 
 ###############################################################################
 ## Method Determine row variability                                          ##
-#' @title A method
+#' @title profileCluster
 #'
 #' @description Method description
 #' @param agree TBD
@@ -12567,7 +12567,7 @@ setGeneric(
 ## Open data frame in Excel                                                  ##
 
 ## Function written by Daniel Cook ##
-#' @title A method
+#' @title excel
 #'
 #' @description Method description
 #' @param agree TBD

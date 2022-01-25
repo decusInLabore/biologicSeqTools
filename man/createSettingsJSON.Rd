@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{createSettingsJSON}
 \alias{createSettingsJSON}
-\title{A method}
+\title{createSettingsJSON}
 \usage{
 createSettingsJSON(
   obj = "object",
