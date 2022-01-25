@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{DotPlotSB}
 \alias{DotPlotSB}
-\title{A method}
+\title{DotPlotSB}
 \usage{
 DotPlotSB(
   object,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{add.category.to.lab.reference.table.hs}
 \alias{add.category.to.lab.reference.table.hs}
-\title{A method}
+\title{add.category.to.lab.reference.table.hs}
 \usage{
 add.category.to.lab.reference.table.hs(
   host = "www.biologic-db.org",

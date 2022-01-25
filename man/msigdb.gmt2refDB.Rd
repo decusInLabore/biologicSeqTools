@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{msigdb.gmt2refDB}
 \alias{msigdb.gmt2refDB}
-\title{A method}
+\title{msigdb.gmt2refDB}
 \usage{
 msigdb.gmt2refDB(
   df.gmt = "read.delim(gmt.file, header=FALSE, sep = '\\t', stringsAsFactors = FALSE)",

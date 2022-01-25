@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{list.db.table.col.names}
 \alias{list.db.table.col.names}
-\title{A method}
+\title{list.db.table.col.names}
 \usage{
 list.db.table.col.names(
   dbtable = "interpro_categori",

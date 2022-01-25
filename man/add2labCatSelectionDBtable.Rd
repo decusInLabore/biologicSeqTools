@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{add2labCatSelectionDBtable}
 \alias{add2labCatSelectionDBtable}
-\title{A method}
+\title{add2labCatSelectionDBtable}
 \usage{
 add2labCatSelectionDBtable(
   df.ref = "reference table",

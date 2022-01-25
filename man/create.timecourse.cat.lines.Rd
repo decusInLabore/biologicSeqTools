@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{create.timecourse.cat.lines}
 \alias{create.timecourse.cat.lines}
-\title{A method}
+\title{create.timecourse.cat.lines}
 \usage{
 create.timecourse.cat.lines(
   df.design,

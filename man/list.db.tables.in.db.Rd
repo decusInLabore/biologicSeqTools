@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{list.db.tables.in.db}
 \alias{list.db.tables.in.db}
-\title{A method}
+\title{list.db.tables.in.db}
 \usage{
 list.db.tables.in.db(
   dbname = "reference_categories_db_new",

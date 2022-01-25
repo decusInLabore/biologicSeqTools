@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{createSeuratSettingsFile}
 \alias{createSeuratSettingsFile}
-\title{A method}
+\title{createSeuratSettingsFile}
 \usage{
 createSeuratSettingsFile(
   labname = "labname",

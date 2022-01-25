@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{profileCluster}
 \alias{profileCluster}
-\title{A method}
+\title{profileCluster}
 \usage{
 profileCluster(
   obj = "Obio",

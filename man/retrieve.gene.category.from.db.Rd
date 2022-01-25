@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{retrieve.gene.category.from.db}
 \alias{retrieve.gene.category.from.db}
-\title{A method}
+\title{retrieve.gene.category.from.db}
 \usage{
 retrieve.gene.category.from.db(
   cat_id = "mysigdb_c5_MF__127",

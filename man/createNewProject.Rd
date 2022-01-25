@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{createNewProject}
 \alias{createNewProject}
-\title{A method}
+\title{createNewProject}
 \usage{
 createNewProject(
   dbname = "reference_categories_db_new",

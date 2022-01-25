@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBwebtools.pckg.r
 \name{create.website.parameters}
 \alias{create.website.parameters}
-\title{A method}
+\title{create.website.parameters}
 \usage{
 create.website.parameters(
   df.data,
