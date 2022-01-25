@@ -8594,6 +8594,7 @@ create.GSEA.table <- function(
 createSettingsFile <- function(
     obj = "object",
     df.data = 'database.table',
+    publicDataset = FALSE,
     defaultXcolName = NULL,
     defaultYcolName = NULL,
     timepointName = NULL,
@@ -8738,11 +8739,25 @@ createSettingsFile <- function(
         sample.names <- gsub("norm_counts_", "", sample.order)
         sample.names <- gsub("_", " ", sample.names)
     }
+    
+    
+    
 
     settingsPhpVec <- c(
         "<?php",
         "",
-        "return array(",
+        "return array("
+    )
+    
+    if (publicDataset){
+        settingsPhpVec <- c(
+            settingsPhpVec,
+            "    'public_access' => TRUE,"
+        )
+    }
+    
+    settingsPhpVec <- c(
+        settingsPhpVec,
         "    'lab' => array(",
         paste0("        'name' => '",obj@parameterList$labname," DB'"),
         "    ),",
@@ -8999,6 +9014,384 @@ createSettingsFile <- function(
 
     ## Done creating settings.php file                                       ##
     ###########################################################################
+}
+
+## End: createSettingsFile()                                                 ##
+###############################################################################
+
+##############################################################################
+## (2C) createSettingsJSON()                                                ##
+#' @title A method
+#'
+#' @description Method description
+#' @param agree TBD
+#' @keywords TBD
+#' @export
+#' @import jsonlite
+#'
+#'
+createSettingsJSON <- function(
+    obj = "object",
+    df.data = 'database.table',
+    publicDataset = FALSE,
+    defaultXcolName = NULL,
+    defaultYcolName = NULL,
+    timepointName = NULL,
+    sample.order = "names(database.table)[grep('norm_counts', names(databse.table))]", #set to "" to go with default sorting
+    heatmapSampleOrder = "lg2_avg vec",
+    sample.names = "", # default is sample.order
+    count.sample.colors = 'rainbow(length(sample.order))',
+    ptm.colum = "display_ptm",
+    count.table.headline = "PTM ratio H/L counts for all samples",
+    count.table.sidelabel = "Counts",
+    venn.slider.selector.strings = 'c("contrast_x_logFC", "constrast_x_padj")',
+    plot.selection.strings = 'c(
+    "_logFC",
+    "_PCA_",
+    "_lg10p"
+)',
+    webSiteDir = "/camp/stp/babs/working/boeings/Stefan/protocol_files/github/biologic/src/experiments",
+    upper_heatmap_limit = 3,
+    lower_heatmap_limit = -3,
+    heamap.headline.text = "heamap.headline.text",
+    project_id = "project_id",
+    primDataTable = "p123_rna_seq_table",
+    pcaDbTable = NULL,
+    pointer = "Gene Symbol:"
+){
+    
+    
+    ###############################################################################
+    ## Create timecourse string from dfDesign                                    ##
+    createTSparams <- function(
+        dfDesign = Obio@dfDesign,
+        timepointName = "Timepoint"
+    ) {
+        
+        tsOrder <- as.numeric(sort(unique(dfDesign$timepoint)))
+        scriptVec <- as.vector(NULL, mode = "character")
+        
+        tsList <- list()
+        tsList[["timecourse_chart"]] <- list(
+            "timepoint_name" = "Day",
+            "display_median" = "calculate_median",
+            "timepoint_array" = list(
+                paste(tsOrder, collapse = ",")
+            )
+            
+        )
+        
+        # scriptVec <- c(
+        #     scriptVec,
+        #     "// New Begin: Timecourse",
+        #     "'timecourse_chart' => array(",
+        #     "    'timepoint_name' => 'Day',",
+        #     "    'display_median' => 'calculate_median',",
+        #     paste0("    'timepoint_array' => array(", paste(tsOrder, collapse = ","),"),"),
+        #     "    'datasets' => array("
+        # )
+        datasetsList <- list()
+        
+        
+        if (length(grep("dataseries_order", names(dfDesign))) > 0){
+            if (length(grep("ts_color", names(dfDesign))) > 0){
+                dfO <- unique(dfDesign[,c("dataseries", "dataseries_order","ts_color")])
+                dfO <- dfO[order(dfO$dataseries_order, decreasing = F),]
+                dataseriesVec <- as.vector(dfO$dataseries)
+                dataseriesColVec <- as.vector(dfO$ts_color)
+            } else {
+                dfO <- unique(dfDesign[,c("dataseries", "dataseries_order")])
+                dfO <- dfO[order(dfO$dataseries_order, decreasing = F),]
+                dataseriesVec <- as.vector(dfO$dataseries)
+                dataseriesColVec <- rainbow(length(dataseriesVec))
+            }
+            
+            
+        } else {
+            if (length(grep("ts_color", names(dfDesign))) > 0){
+                dfO <- unique(dfDesign[,c("dataseries", "ts_color")])
+                dfO <- dfO[order(dfO$dataseries, decreasing = F),]
+                dataseriesVec <- as.vector(dfO$dataseries)
+                dataseriesColVec <- as.vector(dfO$ts_color)
+            } else {
+                dataseriesVec <- sort(unique(dfDesign$dataseries))
+                dataseriesColVec <- rainbow(length(dataseriesVec))
+            }
+        }
+        
+        
+        
+        for (i in 1:length(dataseriesVec)){
+            dfTemp <- unique(
+                dfDesign[dfDesign$dataseries == dataseriesVec[i], c("sample.id", "dataseries", "sample.group", "timepoint")]
+            )
+            
+            dfTemp <- dfTemp[order(dfTemp$timepoint, decreasing = F),]
+            timepointVec <- unique(dfTemp$timepoint)
+            sampleGroupVec <- unique(dfTemp$sample.group)
+            
+            datasetsList[[dataseriesVec[i]]] <- list(
+                'color' = dataseriesColVec[i]
+            )
+            
+            # scriptVec <- c(
+            #     scriptVec,
+            #     paste0("'",dataseriesVec[i],"' => array("),
+            #     paste0("    'color' => '",dataseriesColVec[i],"',"),
+            #     paste0("    'sample_group' => array(")
+            # )
+            
+            sample_groupList <- list()
+            
+            for (j in 1:length(sampleGroupVec)){
+                dfTemp3 <- unique(dfDesign[dfDesign$sample.group %in% sampleGroupVec, c(timepointName, "sample.group")])
+                dfTemp3 <- dfTemp3[order(dfTemp3[,timepointName], decreasing = F),]
+                timepointVec <- as.numeric(dfTemp3[,timepointName])
+                
+                dfTemp2 <- unique(dfTemp[dfTemp$sample.group == sampleGroupVec[j],])
+                
+                sample_groupList[[sampleGroupVec[j]]] = list(
+                    "timepoint" = timepointVec[j],
+                    "sampleDbCols" = list(
+                        paste0(
+                            sampleCols <- paste0("'norm_counts_", sort(dfTemp2$sample.id), "_TPM'"),
+                            collapse = ","
+                        )
+                    )
+                )
+                
+                
+            } ## End for loop
+            
+            datasetsList[[dataseriesVec[i]]] [["sample_group"]] <- sample_groupList
+            #scriptVec[length(scriptVec)] <- gsub(")),", ")))),",scriptVec[length(scriptVec)])
+        }
+        
+        #scriptVec[length(scriptVec)] <- gsub(",", ")),",scriptVec[length(scriptVec)])
+        tsList[["datasets"]] = datasetsList
+        
+        
+        
+        return(tsList)
+        
+    }
+    
+    ##                                                                           ##
+    ###############################################################################    
+    
+    jsonList <- list()
+    ###############################################################################
+    ## Public access                                                             ##
+    if (publicDataset){
+        jsonList[["public_access"]] <- TRUE
+    } else {
+        jsonList[["public_access"]] <- FALSE
+    }
+    ##                                                                           ##
+    ###############################################################################
+    
+    
+    ###############################################################################
+    ## Base parameters                                                           ##    
+    
+    if (sample.order[1] == "" | is.na(sample.order[1])){
+        sample.order <- sort(names(database.table)[grep("norm_counts_", names(database.table))])
+    }
+    
+    if (count.sample.colors[1] == "" | is.na(count.sample.colors[1])){
+        count.sample.colors <- rainbow(length(sample.order))
+    }
+    
+    if (sample.names[1] == "" | is.na(sample.names[1])){
+        sample.names <- gsub("norm_counts_", "", sample.order)
+        sample.names <- gsub("_", " ", sample.names)
+    }
+    
+    jsonList[["lab"]] <- list(
+        "name" =  obj@parameterList$labname,
+        "data_db_name" = obj@dbDetailList$primDataDB,
+        "data_db" = list(
+            "cat_table_name" = obj@parameterList$cat.ref.db.table
+        ),
+        "rnaseq_db_table" = obj@parameterList$rnaseqdbTableName,
+        "primary_gene_symbol" = obj@parameterList$geneIDcolumn,
+        "ptm_display_column" = obj@parameterList$displayPTMcolumn,
+        "heatmap" = list(
+            "upper_limit" = upper_heatmap_limit,
+            "lower_limit" = lower_heatmap_limit,
+            "headline" = obj@parameterList$heamap.headline.text,
+            "pointer" = pointer
+        )
+    )
+    
+    ###############################################################################
+    ## Create sampe list                                                         ##
+    samplesList <- list()
+    
+    for (i in 1:length(sample.order)){
+        samplesList[[sample.order[i]]] <- list(
+            "color" = sample.colors[i],
+            "name" = sample.names[i]
+        )
+        
+    }
+    
+    jsonList[["samples"]] <- samplesList
+    ##                                                                           ##
+    ###############################################################################
+    
+    ###############################################################################
+    ## Add barchart parameters                                                   ##
+    jsonList[["count_table"]] <- list(
+        "headline" = obj@parameterList$count.table.headline,
+        "sidelabel" = obj@parameterList$count.table.sidelabel
+    )
+    
+    
+    ## Done                                                                      ##
+    ###############################################################################    
+    
+    ###############################################################################
+    ## Timecourse parameters                                                     ##
+    
+    
+    if (!is.null(timepointName)){
+        tsList <- createTSparams(
+            dfDesign = Obio@dfDesign,
+            timepointName = timepointName
+        )
+        
+        jsonList[["timecourse_chart"]] <-  tsList 
+    }    
+    
+    
+    ## Done                                                                      ##
+    ###############################################################################  
+    
+    ###############################################################################
+    ## Venn parameters                                                           ##
+    
+    if (heatmapSampleOrder[1] == ""){
+        heatmapSampleOrder <- names(df.data)[grep("lg2_avg", names(df.data))]
+    }
+    
+    heatMapString <- paste(heatmapSampleOrder, collapse = '\\",\\"')
+    #heatMapString <- paste0("'", heatMapString,"'")
+    
+    vennList <- list(
+        "experiments" = heatmapSampleOrder,
+        "table" = list(
+            "col_name_start" = 11,
+            "low_highlight" = -1,
+            "high_highlight" = 1
+        )
+    )
+    
+    ## Make selectionList
+    selectionList <- list()
+    
+    vennCols <- as.vector(NULL, mode = "character")
+    
+    ## Make sure all venn cols are numeric ##
+    df.data[,vennCols] <- apply(df.data[,vennCols], 2, as.numeric)
+    
+    for (i in 1:length(venn.slider.selector.strings)){
+        vennCols <- c(
+            vennCols,
+            names(df.data)[grep(venn.slider.selector.strings[i], names(df.data))]
+        )
+    }
+    
+    for (i in 1:length(vennCols)){
+        colMax <- ceiling(max(as.numeric(df.data[,vennCols[i]]), na.rm = TRUE))
+        colMin <- floor(min(as.numeric(df.data[,vennCols[i]]), na.rm = TRUE))
+        
+        Vname <- vennCols[i]
+        Vname <- substr(Vname ,11,100)
+        Vname <- gsub("^_", "", Vname)
+        Vname <- gsub("_", " ", Vname)
+        
+        if (is.numeric(colMax) & is.numeric(colMin)){
+            selectionList[[vennCols[i]]] <- list(
+                "name"  = Vname,
+                "slider_min" = colMin,
+                "slider_max" = colMax,
+                "default_low" = colMin,
+                "default_high" = colMax
+            ) 
+            
+        } # end if
+    }
+    
+    vennList[["selection"]] <- selectionList
+    
+    jsonList[["venn"]] <- vennList
+    
+    
+    
+    ## Done                                                                      ##
+    ###############################################################################   
+    
+    ###############################################################################
+    ## Add PCA                                                                   ##
+    if (!is.null(pcaDbTable)){
+        jsonList[["pca"]] <- pcaDbTable
+    }
+    
+    ## Done                                                                      ##
+    ############################################################################### 
+    
+    ###############################################################################
+    ## Add scatterplot                                                           ##
+    
+    
+    scatterCols <- as.vector(NULL, mode = "character")
+    for (i in 1:length(plot.selection.strings)){
+        scatterCols <- c(
+            scatterCols,
+            names(df.data)[grep(plot.selection.strings[i], names(df.data))]
+        )
+    }
+    
+    if (length(scatterCols) > 0){
+        scatterplotList <- list()
+        if (is.null(defaultXcolName)){
+            defaultXcolName <- scatterCols[1]
+        }
+        
+        if (is.null(defaultYcolName)){
+            defaultXcolName <- scatterCols[2]
+        }
+        
+        scatterplotList[["default-x"]] <- defaultXcolName
+        scatterplotList[["default-y"]] <- defaultYcolName
+        
+        selectionList <- list()
+        
+        
+        
+        for (i in 1:length(scatterCols)){
+            Sname <- scatterCols[i]
+            Sname <- substr(Sname ,11,100)
+            Sname <- gsub("^_", "", Sname)
+            Sname <- gsub("_", " ", Sname)
+            selectionList[[scatterCols[i]]] <- list(
+                "name" = Sname
+            )
+            
+        }
+        
+        scatterplotList[["selection"]] <- selectionList
+        jsonList[["scatterplot"]] <-  scatterplotList
+        
+        
+    }
+    
+    ## Done                                                                      ##
+    ###############################################################################
+    json <- jsonlite::toJSON(jsonList,pretty=TRUE,auto_unbox=TRUE)
+    return(json)
+    
 }
 
 ## End: createSettingsFile()                                                 ##
